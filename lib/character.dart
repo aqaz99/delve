@@ -1,20 +1,18 @@
 import 'package:delve/Ability/ability.dart';
-import 'package:delve/Ability/ability_list.dart';
 
 class Character {
   final String name;
-  int hp;
+  int maxHealth;
+  int currentHealth;
   int speed;
   List<Ability> abilities;
 
   Character({
     required this.name,
-    required this.hp,
+    required this.maxHealth,
     required this.speed,
     required this.abilities,
-  }) {
-    abilities.add(abilityStrike);
-  }
+  }) : currentHealth = maxHealth;
 
-  bool get isAlive => hp > 0;
+  bool get isAlive => currentHealth > 0;
 }

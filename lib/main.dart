@@ -1,14 +1,14 @@
-import 'package:delve/Ability/ability.dart';
 import 'package:delve/Ability/ability_list.dart';
 import 'package:delve/Battle/battle_service.dart';
 import 'package:delve/character.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:math';
 
 void main() => runApp(DungeonApp());
 
 class DungeonApp extends StatelessWidget {
+  const DungeonApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,6 +21,8 @@ class DungeonApp extends StatelessWidget {
 }
 
 class DungeonGame extends StatefulWidget {
+  const DungeonGame({super.key});
+
   @override
   _DungeonGameState createState() => _DungeonGameState();
 }
@@ -67,10 +69,10 @@ class _DungeonGameState extends State<DungeonGame> {
             children: [
               ElevatedButton(
                 child: Text("Pause"),
-                onPressed: () => setState(() => {}),
+                onPressed: () => setState(() => {_scrollToBottom()}),
               ),
               const SizedBox(width: 10),
-              ElevatedButton(child: const Text('Reset'), onPressed: _resetGame),
+              ElevatedButton(onPressed: _resetGame, child: const Text('Reset')),
             ],
           ),
         ),
@@ -117,7 +119,7 @@ class _DungeonGameState extends State<DungeonGame> {
         Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         ...members.map(
           (c) => Text(
-            '${c.name}: ${c.hp} HP',
+            '${c.name}: ${c.currentHealth} HP',
             style: TextStyle(color: c.isAlive ? Colors.black : Colors.red),
           ),
         ),
@@ -154,14 +156,19 @@ class GameController {
     return [
       Character(
         name: 'Warrior',
-        hp: 30,
+        maxHealth: 30,
         speed: 5,
         abilities: [abilityKnightsSwing],
       ),
-      Character(name: 'Mage', hp: 25, speed: 4, abilities: [abilityFireball]),
+      Character(
+        name: 'Mage',
+        maxHealth: 25,
+        speed: 4,
+        abilities: [abilityFireball],
+      ),
       Character(
         name: 'Healer',
-        hp: 25,
+        maxHealth: 25,
         speed: 3,
         abilities: [abilityLesserHeal],
       ),
@@ -191,12 +198,11 @@ class GameController {
 
 class DungeonService {
   List<Character> generateEnemies(int depth) {
-    final r = Random();
     return List.generate(
       3,
       (i) => Character(
         name: 'Goblin ${i + 1}',
-        hp: 15 + depth * 3,
+        maxHealth: 15 + depth * 3,
         speed: 3 + depth,
         abilities: [],
       ),

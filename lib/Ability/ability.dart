@@ -8,6 +8,7 @@ class Ability {
   final int scale;
   final TargetResolver targetResolver;
   final AbilityEffect effect;
+  final int chance;
 
   Ability({
     required this.name,
@@ -15,5 +16,6 @@ class Ability {
     required this.scale,
     required this.targetResolver,
     required this.effect,
+    required this.chance,
   });
 }

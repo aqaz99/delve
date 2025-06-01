@@ -48,7 +48,7 @@ class LowestHealthAllyResolver extends TargetResolver {
   }) {
     final validTargets = allies.where((a) => a.isAlive).toList();
 
-    validTargets.sort((a, b) => a.hp.compareTo(b.hp));
+    validTargets.sort((a, b) => a.currentHealth.compareTo(b.currentHealth));
 
     return validTargets.take(count).toList();
   }

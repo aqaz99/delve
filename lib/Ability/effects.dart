@@ -10,7 +10,11 @@ class DamageEffect implements AbilityEffect {
   @override
   void apply(Character caster, List<Character> targets, int scale) {
     for (final target in targets) {
-      target.hp -= scale;
+      if ((target.currentHealth - scale) <= 0) {
+        target.currentHealth = 0;
+      } else {
+        target.currentHealth -= scale;
+      }
     }
   }
 }
@@ -19,7 +23,11 @@ class HealEffect implements AbilityEffect {
   @override
   void apply(Character caster, List<Character> targets, int scale) {
     for (final target in targets) {
-      target.hp += scale;
+      if ((target.currentHealth + scale) >= target.maxHealth) {
+        target.currentHealth = target.maxHealth;
+      } else {
+        target.currentHealth += scale;
+      }
     }
   }
 }
@@ -31,7 +39,11 @@ class RandomHealEffect implements AbilityEffect {
   void apply(Character caster, List<Character> targets, int scale) {
     for (final target in targets) {
       final healAmount = _random.nextInt(scale) + scale ~/ 2;
-      target.hp += healAmount;
+      if ((target.currentHealth + scale) <= target.maxHealth) {
+        target.currentHealth = target.maxHealth;
+      } else {
+        target.currentHealth += healAmount;
+      }
       print('${caster.name} heals ${target.name} for $healAmount HP');
     }
   }

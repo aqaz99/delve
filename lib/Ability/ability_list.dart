@@ -11,14 +11,16 @@ final abilityStrike = Ability(
   scale: 4,
   targetResolver: RandomEnemyResolver(1),
   effect: DamageEffect(),
+  chance: 100,
 );
 
 final abilityFireball = Ability(
   name: 'Fireball',
   type: AbilityType.damage,
-  scale: 5,
+  scale: 3,
   targetResolver: RandomEnemyResolver(2),
   effect: DamageEffect(),
+  chance: 25,
 );
 
 final abilityKnightsSwing = Ability(
@@ -27,12 +29,14 @@ final abilityKnightsSwing = Ability(
   scale: 8,
   targetResolver: FrontEnemyResolver(),
   effect: DamageEffect(),
+  chance: 50,
 );
 
 final abilityLesserHeal = Ability(
   name: 'Lesser Heal',
   type: AbilityType.heal,
   scale: 6, // Max value
-  targetResolver: LowestHealthAllyResolver(1), // New resolver
+  targetResolver: LowestHealthAllyResolver(1),
   effect: HealEffect(),
+  chance: 100,
 );

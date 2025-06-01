@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:delve/Ability/ability.dart';
+import 'package:delve/Ability/ability_list.dart';
 import 'package:delve/character.dart';
+import 'package:delve/enums.dart';
 
 class BattleService {
   final BattleContext _context;
@@ -16,9 +18,9 @@ class BattleService {
   Future<void> run() async {
     _isBattleActive = true;
 
-    while (_isBattleActive && _context.battleActive) {
-      final participants = _getInitiativeOrder();
+    final participants = _getInitiativeOrder();
 
+    while (_isBattleActive && _context.battleActive) {
       for (final character in participants) {
         if (!_isBattleActive) break;
         await _processTurn(character);
@@ -47,7 +49,32 @@ class BattleService {
   }
 
   Ability? _selectAbility(Character caster) {
-    return caster.abilities[_random.nextInt(caster.abilities.length)];
+    // If there is an injured ally and we have a heal, use it
+    if (caster.abilities.any((ability) => ability.type == AbilityType.heal)) {
+      for (var ally in _context.allies) {
+        if (ally.isAlive && ally.currentHealth < ally.maxHealth / 2) {
+          print(
+            "Found healing target ${ally.name}: ${ally.currentHealth}/${ally.maxHealth}",
+          );
+          return caster.abilities.firstWhere(
+            (ability) => ability.type == AbilityType.heal,
+          );
+        }
+      }
+    }
+
+    // Roll on each ability, if we get it use it
+    for (var ability in caster.abilities) {
+      // If the ability isn't a guarenteed heal we roll
+      if (ability.type != AbilityType.heal && ability.chance != 100) {
+        final roll = _random.nextInt(100) + 1;
+        if (roll <= ability.chance) {
+          return ability;
+        }
+      }
+    }
+    // Otherwise use strike
+    return abilityStrike;
   }
 
   void useAbility(Character caster, Ability ability) {

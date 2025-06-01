@@ -9,7 +9,7 @@ final abilityStrike = Ability(
   name: 'Strike',
   type: AbilityType.damage,
   scale: 4,
-  targetResolver: FrontEnemyResolver(),
+  targetResolver: RandomEnemyResolver(1),
   effect: DamageEffect(),
 );
 

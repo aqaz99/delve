@@ -1,4 +1,5 @@
 import 'package:delve/Ability/ability.dart';
+import 'package:delve/Ability/ability_list.dart';
 
 class Character {
   final String name;
@@ -11,7 +12,9 @@ class Character {
     required this.hp,
     required this.speed,
     required this.abilities,
-  });
+  }) {
+    abilities.add(abilityStrike);
+  }
 
   bool get isAlive => hp > 0;
 }

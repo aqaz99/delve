@@ -185,11 +185,7 @@ class GameController {
     }
 
     depth++;
-    if (depth > 3) {
-      onLog('VICTORY!');
-      isRunning = false;
-      onGameOver();
-    }
+    // Add levels / checkpoints / fireside recovery
   }
 }
 
@@ -202,7 +198,7 @@ class DungeonService {
         name: 'Goblin ${i + 1}',
         hp: 15 + depth * 3,
         speed: 3 + depth,
-        abilities: [abilityStrike],
+        abilities: [],
       ),
     );
   }

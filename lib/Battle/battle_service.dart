@@ -38,8 +38,7 @@ class BattleService {
   Future<void> _processTurn(Character character) async {
     if (!character.isAlive) return;
 
-    final isAlly = _context.allies.contains(character);
-    final ability = _selectAbility(character, isAlly);
+    final ability = _selectAbility(character);
 
     if (ability != null) {
       useAbility(character, ability);
@@ -47,10 +46,8 @@ class BattleService {
     }
   }
 
-  Ability? _selectAbility(Character caster, bool isAlly) {
-    return isAlly
-        ? caster.abilities.first
-        : caster.abilities[_random.nextInt(caster.abilities.length)];
+  Ability? _selectAbility(Character caster) {
+    return caster.abilities[_random.nextInt(caster.abilities.length)];
   }
 
   void useAbility(Character caster, Ability ability) {

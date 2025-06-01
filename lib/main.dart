@@ -28,7 +28,6 @@ class DungeonGame extends StatefulWidget {
 class _DungeonGameState extends State<DungeonGame> {
   late GameController _game;
   final List<String> _log = [];
-  bool _paused = false;
   final _logController = ScrollController();
 
   @override
@@ -43,19 +42,8 @@ class _DungeonGameState extends State<DungeonGame> {
 
   void _startGameLoop() async {
     while (_game.isRunning) {
-      if (_paused) {
-        await Future.delayed(const Duration(milliseconds: 100));
-        continue;
-      }
-
       await _game.progress();
       _scrollToBottom();
-
-      // Check if the game is paused after progress
-      if (_paused) {
-        await Future.delayed(const Duration(milliseconds: 100));
-        continue;
-      }
 
       await Future.delayed(const Duration(milliseconds: 100));
     }
@@ -78,8 +66,8 @@ class _DungeonGameState extends State<DungeonGame> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                child: Text(_paused ? 'Resume' : 'Pause'),
-                onPressed: () => setState(() => pauseGame()),
+                child: Text("Pause"),
+                onPressed: () => setState(() => {}),
               ),
               const SizedBox(width: 10),
               ElevatedButton(child: const Text('Reset'), onPressed: _resetGame),
@@ -123,10 +111,6 @@ class _DungeonGameState extends State<DungeonGame> {
     );
   }
 
-  void pauseGame() {
-    _paused = !_paused;
-  }
-
   Widget _buildTeamPanel(String title, List<Character> members) {
     return Column(
       children: [
@@ -148,7 +132,6 @@ class _DungeonGameState extends State<DungeonGame> {
         onGameOver: () => setState(() {}),
       );
       _log.clear();
-      _paused = false;
     });
     _startGameLoop();
   }
@@ -172,21 +155,13 @@ class GameController {
       Character(
         name: 'Warrior',
         hp: 30,
-        position: 0,
         speed: 5,
         abilities: [abilityKnightsSwing],
       ),
-      Character(
-        name: 'Mage',
-        hp: 25,
-        position: 1,
-        speed: 4,
-        abilities: [abilityFireball],
-      ),
+      Character(name: 'Mage', hp: 25, speed: 4, abilities: [abilityFireball]),
       Character(
         name: 'Healer',
         hp: 25,
-        position: 2,
         speed: 3,
         abilities: [abilityLesserHeal],
       ),
@@ -226,7 +201,6 @@ class DungeonService {
       (i) => Character(
         name: 'Goblin ${i + 1}',
         hp: 15 + depth * 3,
-        position: r.nextInt(3),
         speed: 3 + depth,
         abilities: [abilityStrike],
       ),

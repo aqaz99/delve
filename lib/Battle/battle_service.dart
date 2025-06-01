@@ -9,7 +9,6 @@ class BattleService {
   final Function(String) onLog;
   final _random = Random();
   var _isBattleActive = false;
-  var _isBattlePaused = false;
 
   BattleService({required this.onLog, required BattleContext context})
     : _context = context;
@@ -17,7 +16,7 @@ class BattleService {
   Future<void> run() async {
     _isBattleActive = true;
 
-    while (_isBattleActive && _context.battleActive && !_isBattlePaused) {
+    while (_isBattleActive && _context.battleActive) {
       final participants = _getInitiativeOrder();
 
       for (final character in participants) {
@@ -49,54 +48,39 @@ class BattleService {
   }
 
   Ability? _selectAbility(Character caster, bool isAlly) {
-    final availableAbilities =
-        caster.abilities
-            .where((a) => a.canUseFromPosition(caster.position))
-            .toList();
-
-    if (availableAbilities.isEmpty) return null;
-
     return isAlly
-        ? availableAbilities.first
-        : availableAbilities[_random.nextInt(availableAbilities.length)];
+        ? caster.abilities.first
+        : caster.abilities[_random.nextInt(caster.abilities.length)];
   }
 
   void useAbility(Character caster, Ability ability) {
-    if (!caster.isAlive || !ability.canUseFromPosition(caster.position)) return;
+    if (!caster.isAlive) return;
 
-    final targets = ability.targetResolver.resolve(
-      caster: caster,
-      allies: _context.allies,
-      enemies: _context.enemies,
-    );
+    // Determine actual allies/enemies based on caster team
+    final isAlly = _context.allies.contains(caster);
+    final casterAllies = isAlly ? _context.allies : _context.enemies;
+    final casterEnemies = isAlly ? _context.enemies : _context.allies;
 
-    for (var element in targets) {
-      print("target: ${element.name}");
-    }
+    final targets =
+        ability.targetResolver
+            .resolve(
+              caster: caster,
+              allies: casterAllies,
+              enemies: casterEnemies,
+            )
+            .where((t) => t.isAlive)
+            .toList();
 
-    // Ensure targets are filtered based on allegiance
-    final validTargets =
-        _context.allies.contains(caster)
-            ? targets
-                .where((t) => _context.enemies.contains(t) && t.isAlive)
-                .toList()
-            : targets
-                .where((t) => _context.allies.contains(t) && t.isAlive)
-                .toList();
-
-    print(_context.allies);
-    print(_context.enemies);
-
-    if (validTargets.isEmpty) {
+    if (targets.isEmpty) {
       onLog(
-        '${caster.name} tried to use ${ability.name} but found no valid targets!',
+        '${caster.name} tried to use ${ability.name} but found no targets!',
       );
       return;
     }
 
-    ability.effect.apply(caster, validTargets, ability.scale);
+    ability.effect.apply(caster, targets, ability.scale);
     onLog(
-      '${caster.name} uses ${ability.name} on ${validTargets.map((t) => t.name).join(', ')}',
+      '${caster.name} uses ${ability.name} on ${targets.map((t) => t.name).join(', ')}',
     );
 
     _context.removeDeadCharacters();

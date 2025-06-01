@@ -5,7 +5,6 @@ import 'package:delve/enums.dart';
 class Ability {
   final String name;
   final AbilityType type;
-  final List<int> validPositions;
   final int scale;
   final TargetResolver targetResolver;
   final AbilityEffect effect;
@@ -13,11 +12,8 @@ class Ability {
   Ability({
     required this.name,
     required this.type,
-    required this.validPositions,
     required this.scale,
     required this.targetResolver,
     required this.effect,
   });
-
-  bool canUseFromPosition(int position) => validPositions.contains(position);
 }

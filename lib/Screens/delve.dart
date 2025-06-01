@@ -12,6 +12,9 @@ class _DelveScreenState extends State<DelveScreen> {
   final List<String> _log = [];
   final _logController = ScrollController();
 
+  bool gamePaused = true;
+  bool gameStarted = false;
+
   @override
   void initState() {
     super.initState();
@@ -19,7 +22,6 @@ class _DelveScreenState extends State<DelveScreen> {
       onLog: (msg) => setState(() => _log.add(msg)),
       onGameOver: () => setState(() {}),
     );
-    _startGameLoop();
   }
 
   void _startGameLoop() async {
@@ -28,6 +30,18 @@ class _DelveScreenState extends State<DelveScreen> {
       _scrollToBottom();
 
       await Future.delayed(const Duration(milliseconds: 100));
+    }
+  }
+
+  void toggleGameState() {
+    if (!gameStarted) {
+      gameStarted = true;
+      _startGameLoop();
+    }
+    gamePaused = !gamePaused;
+    print("Game paused: $gamePaused");
+    if (gamePaused) {
+      _game.toggleBattle();
     }
   }
 
@@ -73,8 +87,11 @@ class _DelveScreenState extends State<DelveScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                child: Text("Pause"),
-                onPressed: () => setState(() => {_scrollToBottom()}),
+                child: Text(gamePaused ? "Start" : "Pause"),
+                onPressed:
+                    () => setState(() {
+                      toggleGameState();
+                    }),
               ),
               const SizedBox(width: 10),
               ElevatedButton(onPressed: _resetGame, child: const Text('Reset')),

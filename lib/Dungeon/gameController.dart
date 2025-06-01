@@ -39,6 +39,11 @@ class GameController {
     ];
   }
 
+  void toggleBattle() {
+    _battle.toggleBattle();
+    isRunning = !isRunning;
+  }
+
   Future<void> progress() async {
     enemies = DungeonService().generateEnemies(depth);
     onLog('\n=== Depth $depth ===');
@@ -46,7 +51,10 @@ class GameController {
     var ctx = BattleContext(List.from(party), enemies);
     _battle = BattleService(context: ctx, onLog: onLog);
 
-    await _battle.run();
+    print("Is running: $isRunning");
+    if (isRunning) {
+      await _battle.run();
+    }
 
     if (!ctx.partyAlive) {
       onLog('GAME OVER');

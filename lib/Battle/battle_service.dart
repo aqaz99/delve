@@ -28,7 +28,9 @@ class BattleService {
       }
     }
 
-    onLog(_context.partyAlive ? 'Victory!' : 'Defeat!');
+    if (_isBattleActive) {
+      onLog(_context.partyAlive ? 'Victory!' : 'Defeat!');
+    }
   }
 
   List<Character> _getInitiativeOrder() {
@@ -110,8 +112,8 @@ class BattleService {
     _context.removeDeadCharacters();
   }
 
-  void stopBattle() {
-    _isBattleActive = false;
+  void toggleBattle() {
+    _isBattleActive = !_isBattleActive;
   }
 }
 

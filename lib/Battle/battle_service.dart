@@ -87,8 +87,7 @@ class BattleService {
     ability.effect.apply(caster, targets, ability.scale);
     _context.removeDeadCharacters();
     final state = BattleState(
-      logMessage:
-          '${caster.name} used ${ability.name} on ${targets.map((t) => t.name).join(', ')} for ${ability.scale}.',
+      logMessage: ability.abilityUseText(caster, targets),
       partySnapshot: _deepCopy(_context.allies),
       enemiesSnapshot: _deepCopy(_context.enemies),
     );

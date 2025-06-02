@@ -2,10 +2,11 @@
 import 'package:delve/Ability/ability_list.dart';
 import 'package:delve/Battle/battle_service.dart';
 import 'package:delve/Character/character.dart';
+import 'package:delve/Party/party_service.dart';
 
 // Add levels / checkpoints / fireside recovery
 class DungeonService {
-  List<Character> party;
+  List<Character> party = [];
   List<Character> enemies = [];
   int currentRound = 0;
   int depth = 1;
@@ -13,38 +14,18 @@ class DungeonService {
   bool gameStarted = false;
   bool defeatedDepth = false;
   final Function() onGameOver;
+  final PartyService _partyService = PartyService();
 
   late BattleService _battle;
 
-  DungeonService({required this.onStateUpdate, required this.onGameOver})
-    : party = loadInitialParty();
+  DungeonService({required this.onStateUpdate, required this.onGameOver});
 
-  static List<Character> loadInitialParty() {
-    // You'll want to implement async loading here in real app
-    return _defaultParty();
-  }
-
-  static List<Character> _defaultParty() {
-    return [
-      Character(
-        name: 'Warrior',
-        maxHealth: 30,
-        speed: 5,
-        abilities: [abilityKnightsSwing],
-      ),
-      Character(
-        name: 'Mage',
-        maxHealth: 25,
-        speed: 4,
-        abilities: [abilityFireball],
-      ),
-      Character(
-        name: 'Healer',
-        maxHealth: 25,
-        speed: 3,
-        abilities: [abilityLesserHeal],
-      ),
-    ];
+  Future<List<Character>> loadDungeonParty() async {
+    party = await _partyService.loadParty();
+    for (var element in party) {
+      print(element);
+    }
+    return party;
   }
 
   List<Character> generateEnemies(int depth) {

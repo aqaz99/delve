@@ -1,6 +1,5 @@
 import 'package:delve/Character/character.dart';
-import 'package:delve/Character/character_repository.dart';
-import 'package:delve/Dungeon/dungeon_service.dart';
+import 'package:delve/Party/party_service.dart';
 import 'package:flutter/material.dart';
 
 class HeroScreen extends StatefulWidget {
@@ -9,26 +8,24 @@ class HeroScreen extends StatefulWidget {
 }
 
 class _HeroScreenState extends State<HeroScreen> {
-  final CharacterRepository _repo = CharacterRepository();
+  final PartyService _partyService = PartyService();
   late Future<List<Character>> _partyFuture;
 
   Future<void> _saveDebugParty() async {
-    // Get default party from your game service
-    final defaultParty = DungeonService.loadInitialParty();
-    ();
-    await _repo.saveParty(defaultParty);
+    final party = await _partyFuture;
+    await _partyService.saveParty(party);
     _refreshParty();
   }
 
   Future<void> _clearSavedData() async {
-    await _repo.clearSavedParty();
+    await _partyService.clearSavedParty();
     _refreshParty();
   }
 
   @override
   void initState() {
     super.initState();
-    _partyFuture = _repo.loadParty();
+    _partyFuture = _partyService.loadParty();
   }
 
   void _showCharacterDetails(Character character) {
@@ -63,7 +60,7 @@ class _HeroScreenState extends State<HeroScreen> {
 
   Future<void> _refreshParty() async {
     setState(() {
-      _partyFuture = _repo.loadParty();
+      _partyFuture = _partyService.loadParty();
     });
   }
 

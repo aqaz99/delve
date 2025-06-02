@@ -11,6 +11,7 @@ class DelveScreen extends StatefulWidget {
 
 class _DelveScreenState extends State<DelveScreen> {
   late DungeonService _game;
+  late Future<List<Character>> _loadPartyFuture;
   final List<BattleState> _stateBuffer = [];
   final List<BattleState> _visibleStates = [];
   bool _isProcessing = false;
@@ -23,6 +24,7 @@ class _DelveScreenState extends State<DelveScreen> {
       onStateUpdate: _handleNewState,
       onGameOver: () => setState(() {}),
     );
+    _loadPartyFuture = _game.loadDungeonParty();
   }
 
   void _handleNewState(BattleState state) {
@@ -96,63 +98,78 @@ class _DelveScreenState extends State<DelveScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Controls
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    return FutureBuilder<void>(
+      future: _loadPartyFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error loading party: ${snapshot.error}'));
+        } else {
+          return Column(
             children: [
-              ElevatedButton(
-                child: Text(getSimulateText()),
-                onPressed:
-                    () => setState(() {
-                      _nextRound();
-                    }),
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton(onPressed: _resetGame, child: const Text('Reset')),
-            ],
-          ),
-        ),
-
-        // Game Info
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Text(
-                'Depth: ${_game.depth}',
-                style: const TextStyle(fontSize: 20),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildTeamPanel('Party', _game.party),
-                  _buildTeamPanel('Enemies', _game.enemies),
-                ],
-              ),
-            ],
-          ),
-        ),
-
-        // Battle Log
-        Expanded(
-          child: ListView.builder(
-            controller: _logController,
-            itemCount: _visibleStates.length,
-            itemBuilder:
-                (context, i) => ListTile(
-                  title: Text(
-                    _visibleStates[i].logMessage,
-                    style: const TextStyle(fontSize: 14),
-                  ),
+              // Controls
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      child: Text(getSimulateText()),
+                      onPressed:
+                          () => setState(() {
+                            _nextRound();
+                          }),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: _resetGame,
+                      child: const Text('Reset'),
+                    ),
+                  ],
                 ),
-          ),
-        ),
-      ],
+              ),
+
+              // Game Info
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'Depth: ${_game.depth}',
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildTeamPanel('Party', _game.party),
+                        if (_game.gameStarted)
+                          _buildTeamPanel('Enemies', _game.enemies),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Battle Log
+              Expanded(
+                child: ListView.builder(
+                  controller: _logController,
+                  itemCount: _visibleStates.length,
+                  itemBuilder:
+                      (context, i) => ListTile(
+                        title: Text(
+                          _visibleStates[i].logMessage,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+                ),
+              ),
+            ],
+          );
+        }
+      },
     );
   }
 

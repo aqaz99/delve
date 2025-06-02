@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:delve/Character/character.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class CharacterRepository {
+class PartyService {
   static const _key = 'saved_party';
+
+  PartyService();
 
   Future<void> saveParty(List<Character> party) async {
     final prefs = await SharedPreferences.getInstance();

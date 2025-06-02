@@ -85,12 +85,13 @@ class BattleService {
     }
 
     ability.effect.apply(caster, targets, ability.scale);
-    _context.removeDeadCharacters();
+
     final state = BattleState(
       logMessage: ability.abilityUseText(caster, targets),
       partySnapshot: _deepCopy(_context.allies),
       enemiesSnapshot: _deepCopy(_context.enemies),
     );
+    _context.removeDeadCharacters();
     onState(state);
     return;
   }
@@ -120,10 +121,12 @@ class BattleState {
   final String logMessage;
   final List<Character> partySnapshot;
   final List<Character> enemiesSnapshot;
+  final bool isSeparator;
 
   BattleState({
     required this.logMessage,
     required this.partySnapshot,
     required this.enemiesSnapshot,
+    this.isSeparator = false,
   });
 }

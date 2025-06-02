@@ -30,6 +30,8 @@ class Ability {
         for (var target in localTargets) {
           if (target.currentHealth - scale <= 0) {
             targetNames.add("${target.name}(Dead)");
+          } else {
+            targetNames.add(target.name);
           }
         }
         useText =
@@ -43,9 +45,7 @@ class Ability {
         break;
       case AbilityType.overTime:
         break;
-      default:
     }
     return useText;
-    ;
   }
 }

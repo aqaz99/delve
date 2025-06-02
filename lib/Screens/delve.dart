@@ -46,6 +46,13 @@ class _DelveScreenState extends State<DelveScreen> {
   }
 
   void _nextRound() async {
+    _visibleStates.add(
+      BattleState(
+        logMessage: '────────── Round ${_game.currentRound} ──────────',
+        partySnapshot: _game.party,
+        enemiesSnapshot: _game.enemies,
+      ),
+    );
     if (!_game.gameStarted) {
       _game.generateEncounter();
     }
@@ -148,12 +155,4 @@ class _DelveScreenState extends State<DelveScreen> {
       ],
     );
   }
-}
-
-class Game {
-  int depth = 0;
-  List<String> party = ['Hero', 'Mage', 'Warrior'];
-  List<String> enemies = ['Goblin', 'Orc', 'Troll'];
-
-  Game();
 }

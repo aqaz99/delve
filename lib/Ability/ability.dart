@@ -36,9 +36,7 @@ class Ability {
         break;
       case AbilityType.overTime:
         break;
-      default:
     }
     return useText;
-    ;
   }
 }

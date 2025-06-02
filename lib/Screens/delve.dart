@@ -46,6 +46,12 @@ class _DelveScreenState extends State<DelveScreen> {
   }
 
   void _nextRound() async {
+    if (!_game.gameStarted) {
+      _game.generateEncounter();
+    }
+    if (!_game.enemies.any((c) => c.isAlive)) {
+      _game.goDeeper();
+    }
     _visibleStates.add(
       BattleState(
         logMessage: '────────── Round ${_game.currentRound} ──────────',
@@ -53,12 +59,6 @@ class _DelveScreenState extends State<DelveScreen> {
         enemiesSnapshot: _game.enemies,
       ),
     );
-    if (!_game.gameStarted) {
-      _game.generateEncounter();
-    }
-    if (_game.enemies.isEmpty) {
-      _game.goDeeper();
-    }
     await _game.progressRound();
     _scrollToBottom(Duration.zero);
   }
@@ -105,7 +105,7 @@ class _DelveScreenState extends State<DelveScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                child: Text("Simulate Round"),
+                child: Text(getSimulateText()),
                 onPressed:
                     () => setState(() {
                       _nextRound();
@@ -154,5 +154,15 @@ class _DelveScreenState extends State<DelveScreen> {
         ),
       ],
     );
+  }
+
+  String getSimulateText() {
+    if (!_game.gameStarted) {
+      return "Delve";
+    }
+    if (!_game.enemies.any((c) => c.isAlive)) {
+      return "Delve Deeper";
+    }
+    return "Fight";
   }
 }

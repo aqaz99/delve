@@ -10,6 +10,7 @@ class DungeonService {
   int depth = 1;
   final Function(BattleState) onStateUpdate;
   bool gameStarted = false;
+  bool defeatedDepth = false;
   final Function() onGameOver;
 
   late BattleService _battle;
@@ -65,15 +66,7 @@ class DungeonService {
 
   Future<void> progressRound() async {
     currentRound++;
-    // Add round separator state
-    // _emitState(
-    //   BattleState(
-    //     logMessage: '────────── Round $_currentRound ──────────',
-    //     partySnapshot: _deepCopy(party),
-    //     enemiesSnapshot: _deepCopy(enemies),
-    //     isSeparator: true,
-    //   ),
-    // );
+
     var ctx = BattleContext(List.from(party), enemies);
     _battle = BattleService(
       context: ctx,

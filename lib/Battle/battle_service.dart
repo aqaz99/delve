@@ -85,13 +85,12 @@ class BattleService {
     }
 
     ability.effect.apply(caster, targets, ability.scale);
-
     final state = BattleState(
       logMessage: ability.abilityUseText(caster, targets),
       partySnapshot: _deepCopy(_context.allies),
       enemiesSnapshot: _deepCopy(_context.enemies),
     );
-    _context.removeDeadCharacters();
+
     onState(state);
     return;
   }
@@ -110,11 +109,6 @@ class BattleContext {
   bool get battleActive => partyAlive && enemiesAlive;
   bool get partyAlive => allies.any((c) => c.isAlive);
   bool get enemiesAlive => enemies.any((c) => c.isAlive);
-
-  void removeDeadCharacters() {
-    allies.removeWhere((c) => !c.isAlive);
-    enemies.removeWhere((c) => !c.isAlive);
-  }
 }
 
 class BattleState {

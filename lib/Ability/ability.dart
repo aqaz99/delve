@@ -25,17 +25,8 @@ class Ability {
 
     switch (type) {
       case AbilityType.damage:
-        List<String> targetNames = [];
-        List<Character> localTargets = targets;
-        for (var target in localTargets) {
-          if (target.currentHealth - scale <= 0) {
-            targetNames.add("${target.name}(Dead)");
-          } else {
-            targetNames.add(target.name);
-          }
-        }
         useText =
-            "${caster.name} uses $name on ${targetNames.join(', ')} for $scale";
+            "${caster.name} uses $name on ${targets.map((t) => t.name).join(', ')} for $scale";
         break;
       case AbilityType.heal:
         useText =
@@ -45,7 +36,9 @@ class Ability {
         break;
       case AbilityType.overTime:
         break;
+      default:
     }
     return useText;
+    ;
   }
 }

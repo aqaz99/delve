@@ -2,6 +2,7 @@ import 'package:delve/Screens/delveScreen.dart';
 import 'package:delve/Screens/heroScreen.dart';
 import 'package:delve/Screens/itemScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttericon/rpg_awesome_icons.dart';
 
 void main() => runApp(DungeonApp());
 
@@ -47,7 +48,7 @@ class _DungeonGameState extends State<DungeonGame> {
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-            icon: Badge(child: Icon(Icons.notifications_sharp)),
+            icon: Icon(Icons.person_outline),
             label: 'Characters',
           ),
           NavigationDestination(
@@ -56,8 +57,8 @@ class _DungeonGameState extends State<DungeonGame> {
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Badge(label: Text('2'), child: Icon(Icons.messenger_sharp)),
-            label: 'Messages',
+            icon: Icon(RpgAwesome.helmet), // Icon resembling a chest
+            label: 'Items',
           ),
         ],
       ),

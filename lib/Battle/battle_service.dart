@@ -43,9 +43,6 @@ class BattleService {
     if (caster.abilities.any((ability) => ability.type == AbilityType.heal)) {
       for (var ally in _context.allies) {
         if (ally.isAlive && ally.currentHealth < ally.maxHealth / 2) {
-          print(
-            "Found healing target ${ally.name}: ${ally.currentHealth}/${ally.maxHealth}",
-          );
           return caster.abilities.firstWhere(
             (ability) => ability.type == AbilityType.heal,
           );
@@ -68,8 +65,6 @@ class BattleService {
   }
 
   void useAbility(Character caster, Ability ability) {
-    if (!caster.isAlive) return;
-
     // Determine actual allies/enemies based on caster team
     final isAlly = _context.allies.contains(caster);
     final casterAllies = isAlly ? _context.allies : _context.enemies;
@@ -85,12 +80,9 @@ class BattleService {
             .where((t) => t.isAlive)
             .toList();
 
-    // if (targets.isEmpty) {
-    //   onLog(
-    //     '${caster.name} tried to use ${ability.name} but found no targets!',
-    //   );
-    //   return;
-    // }
+    if (targets.isEmpty) {
+      return;
+    }
 
     ability.effect.apply(caster, targets, ability.scale);
     _context.removeDeadCharacters();
@@ -101,6 +93,7 @@ class BattleService {
       enemiesSnapshot: _deepCopy(_context.enemies),
     );
     onState(state);
+    return;
   }
 
   static List<Character> _deepCopy(List<Character> originals) {

@@ -1,9 +1,9 @@
 // gameController.dart
 import 'package:delve/Ability/ability_list.dart';
-import 'package:delve/Battle/battleService.dart';
+import 'package:delve/Battle/battle_service.dart';
 import 'package:delve/character.dart';
 
-class GameController {
+class DungeonService {
   List<Character> party;
   List<Character> enemies = [];
   int depth = 1;
@@ -13,7 +13,7 @@ class GameController {
 
   late BattleService _battle;
 
-  GameController({required this.onStateUpdate, required this.onGameOver})
+  DungeonService({required this.onStateUpdate, required this.onGameOver})
     : party = _defaultParty();
 
   static List<Character> _defaultParty() {

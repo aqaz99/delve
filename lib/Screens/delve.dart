@@ -1,6 +1,6 @@
 // delve.dart
-import 'package:delve/Battle/battleService.dart';
-import 'package:delve/Dungeon/gameService.dart';
+import 'package:delve/Battle/battle_service.dart';
+import 'package:delve/Dungeon/dungeon_service.dart';
 import 'package:delve/character.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +10,7 @@ class DelveScreen extends StatefulWidget {
 }
 
 class _DelveScreenState extends State<DelveScreen> {
-  late GameController _game;
+  late DungeonService _game;
   final List<BattleState> _stateBuffer = [];
   final List<BattleState> _visibleStates = [];
   bool _isProcessing = false;
@@ -19,7 +19,7 @@ class _DelveScreenState extends State<DelveScreen> {
   @override
   void initState() {
     super.initState();
-    _game = GameController(
+    _game = DungeonService(
       onStateUpdate: _handleNewState,
       onGameOver: () => setState(() {}),
     );
@@ -28,9 +28,6 @@ class _DelveScreenState extends State<DelveScreen> {
   void _handleNewState(BattleState state) {
     _stateBuffer.add(state);
     if (!_isProcessing) _processStates();
-    if (state.enemiesSnapshot.isEmpty) {
-      _game.goDeeper();
-    }
   }
 
   void _processStates() async {
@@ -51,6 +48,9 @@ class _DelveScreenState extends State<DelveScreen> {
   void _nextRound() async {
     if (!_game.gameStarted) {
       _game.generateEncounter();
+    }
+    if (_game.enemies.isEmpty) {
+      _game.goDeeper();
     }
     await _game.progressRound();
     _scrollToBottom(Duration.zero);
@@ -80,7 +80,7 @@ class _DelveScreenState extends State<DelveScreen> {
 
   void _resetGame() {
     setState(() {
-      _game = GameController(
+      _game = DungeonService(
         onStateUpdate: (msg) => setState(() => {}),
         onGameOver: () => setState(() {}),
       );

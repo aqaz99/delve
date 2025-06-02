@@ -1,6 +1,6 @@
 // delve.dart
 import 'package:delve/Battle/battleService.dart';
-import 'package:delve/Dungeon/gameController.dart';
+import 'package:delve/Dungeon/gameService.dart';
 import 'package:delve/character.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/scheduler/binding.dart';
@@ -29,6 +29,9 @@ class _DelveScreenState extends State<DelveScreen> {
   void _handleNewState(BattleState state) {
     _stateBuffer.add(state);
     if (!_isProcessing) _processStates();
+    if (state.enemiesSnapshot.isEmpty) {
+      _game.goDeeper();
+    }
   }
 
   void _processStates() async {

@@ -40,6 +40,11 @@ class GameController {
     ];
   }
 
+  void goDeeper() {
+    depth++;
+    generateEncounter();
+  }
+
   void generateEncounter() {
     gameStarted = true;
     enemies = DungeonService().generateEnemies(depth);

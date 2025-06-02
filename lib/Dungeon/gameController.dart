@@ -1,18 +1,20 @@
+// gameController.dart
 import 'package:delve/Ability/ability_list.dart';
-import 'package:delve/Battle/battle_service.dart';
+import 'package:delve/Battle/battleService.dart';
 import 'package:delve/Dungeon/dungeonService.dart';
 import 'package:delve/character.dart';
 
 class GameController {
-  final List<Character> party;
+  List<Character> party;
   List<Character> enemies = [];
   int depth = 1;
-  final Function(String) onLog;
+  final Function(BattleState) onStateUpdate;
+  bool gameStarted = false;
   final Function() onGameOver;
 
   late BattleService _battle;
 
-  GameController({required this.onLog, required this.onGameOver})
+  GameController({required this.onStateUpdate, required this.onGameOver})
     : party = _defaultParty();
 
   static List<Character> _defaultParty() {
@@ -38,22 +40,27 @@ class GameController {
     ];
   }
 
-  Future<void> progress() async {
+  void generateEncounter() {
+    gameStarted = true;
     enemies = DungeonService().generateEnemies(depth);
-    onLog('\n=== Depth $depth ===');
+  }
 
+  Future<void> progressRound() async {
     var ctx = BattleContext(List.from(party), enemies);
-    _battle = BattleService(context: ctx, onLog: onLog);
+    _battle = BattleService(
+      context: ctx,
+      onState: (state) => onStateUpdate(state), // New callback
+    );
 
-    await _battle.runBattle();
+    await _battle.runBattleRound();
 
     if (!ctx.partyAlive) {
-      onLog('GAME OVER');
+      // onLog('GAME OVER');
       onGameOver();
       return;
     }
 
-    depth++;
+    // depth++;
     // Add levels / checkpoints / fireside recovery
   }
 }

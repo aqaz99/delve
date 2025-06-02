@@ -1,6 +1,9 @@
+// delve.dart
+import 'package:delve/Battle/battleService.dart';
 import 'package:delve/Dungeon/gameController.dart';
 import 'package:delve/character.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/scheduler/binding.dart';
 
 class DelveScreen extends StatefulWidget {
   @override
@@ -9,54 +12,54 @@ class DelveScreen extends StatefulWidget {
 
 class _DelveScreenState extends State<DelveScreen> {
   late GameController _game;
-  final List<String> _log = [];
-  final List<String> _logBuffer = [];
-  bool _isProcessingLogs = false;
+  final List<BattleState> _stateBuffer = [];
+  final List<BattleState> _visibleStates = [];
+  bool _isProcessing = false;
   final _logController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _game = GameController(
-      onLog: _handleNewLog,
+      onStateUpdate: _handleNewState,
       onGameOver: () => setState(() {}),
     );
   }
 
-  void _handleNewLog(String msg) {
-    _logBuffer.add(msg);
-    if (!_isProcessingLogs) {
-      _processLogs();
-    }
+  void _handleNewState(BattleState state) {
+    _stateBuffer.add(state);
+    if (!_isProcessing) _processStates();
   }
 
-  void _handleStateUpdate() {
-    if (!_isProcessingLogs) {
-      _processLogs();
-    }
-  }
-
-  void _processLogs() async {
-    _isProcessingLogs = true;
-    while (_logBuffer.isNotEmpty) {
-      String msg = _logBuffer.removeAt(0);
-      setState(() => _log.add(msg));
-      setState(() {}); // Trigger state update for HP changes
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+  void _processStates() async {
+    _isProcessing = true;
+    while (_stateBuffer.isNotEmpty) {
+      final state = _stateBuffer.removeAt(0);
+      setState(() {
+        _visibleStates.add(state);
+        _game.party = state.partySnapshot;
+        _game.enemies = state.enemiesSnapshot;
+      });
+      WidgetsBinding.instance.addPostFrameCallback(_scrollToBottom);
       await Future.delayed(const Duration(milliseconds: 250));
     }
-    _isProcessingLogs = false;
+    _isProcessing = false;
   }
 
-  void _startGameLoop() async {
-    await _game.progress();
-    _scrollToBottom();
-  }
-
-  void _scrollToBottom() {
-    if (_logController.hasClients) {
-      _logController.jumpTo(_logController.position.maxScrollExtent);
+  void _nextRound() async {
+    if (!_game.gameStarted) {
+      _game.generateEncounter();
     }
+    await _game.progressRound();
+    _scrollToBottom(Duration.zero);
+  }
+
+  void _scrollToBottom(Duration _) {
+    _logController.animateTo(
+      _logController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   Widget _buildTeamPanel(String title, List<Character> members) {
@@ -76,12 +79,10 @@ class _DelveScreenState extends State<DelveScreen> {
   void _resetGame() {
     setState(() {
       _game = GameController(
-        onLog: (msg) => setState(() => _log.add(msg)),
+        onStateUpdate: (msg) => setState(() => {}),
         onGameOver: () => setState(() {}),
       );
-      _log.clear();
     });
-    _startGameLoop();
   }
 
   @override
@@ -95,10 +96,10 @@ class _DelveScreenState extends State<DelveScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                child: Text("Simulate"),
+                child: Text("Simulate Round"),
                 onPressed:
                     () => setState(() {
-                      _startGameLoop();
+                      _nextRound();
                     }),
               ),
               const SizedBox(width: 10),
@@ -132,10 +133,13 @@ class _DelveScreenState extends State<DelveScreen> {
         Expanded(
           child: ListView.builder(
             controller: _logController,
-            itemCount: _log.length,
+            itemCount: _visibleStates.length,
             itemBuilder:
                 (context, i) => ListTile(
-                  title: Text(_log[i], style: const TextStyle(fontSize: 14)),
+                  title: Text(
+                    _visibleStates[i].logMessage,
+                    style: const TextStyle(fontSize: 14),
+                  ),
                 ),
           ),
         ),

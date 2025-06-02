@@ -14,5 +14,12 @@ class Character {
     required this.abilities,
   }) : currentHealth = maxHealth;
 
+  Character.copy(Character other)
+    : name = other.name,
+      maxHealth = other.maxHealth,
+      currentHealth = other.currentHealth,
+      speed = other.speed,
+      abilities = List.from(other.abilities);
+
   bool get isAlive => currentHealth > 0;
 }

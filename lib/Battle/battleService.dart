@@ -1,3 +1,4 @@
+// battleService.dart
 import 'dart:async';
 import 'dart:math';
 
@@ -8,13 +9,13 @@ import 'package:delve/enums.dart';
 
 class BattleService {
   final BattleContext _context;
-  final Function(String) onLog;
+  final Function(BattleState) onState;
   final _random = Random();
 
-  BattleService({required this.onLog, required BattleContext context})
+  BattleService({required this.onState, required BattleContext context})
     : _context = context;
 
-  Future<void> runBattle() async {
+  Future<void> runBattleRound() async {
     final participants = _getInitiativeOrder();
 
     for (final character in participants) {
@@ -85,19 +86,26 @@ class BattleService {
             .where((t) => t.isAlive)
             .toList();
 
-    if (targets.isEmpty) {
-      onLog(
-        '${caster.name} tried to use ${ability.name} but found no targets!',
-      );
-      return;
-    }
+    // if (targets.isEmpty) {
+    //   onLog(
+    //     '${caster.name} tried to use ${ability.name} but found no targets!',
+    //   );
+    //   return;
+    // }
 
     ability.effect.apply(caster, targets, ability.scale);
-    onLog(
-      '${caster.name} uses ${ability.name} on ${targets.map((t) => t.name).join(', ')}',
-    );
-
     _context.removeDeadCharacters();
+    final state = BattleState(
+      logMessage:
+          '${caster.name} used ${ability.name} on ${targets.map((t) => t.name).join(', ')} for ${ability.scale}.',
+      partySnapshot: _deepCopy(_context.allies),
+      enemiesSnapshot: _deepCopy(_context.enemies),
+    );
+    onState(state);
+  }
+
+  static List<Character> _deepCopy(List<Character> originals) {
+    return originals.map((c) => Character.copy(c)).toList();
   }
 }
 
@@ -115,4 +123,16 @@ class BattleContext {
     allies.removeWhere((c) => !c.isAlive);
     enemies.removeWhere((c) => !c.isAlive);
   }
+}
+
+class BattleState {
+  final String logMessage;
+  final List<Character> partySnapshot;
+  final List<Character> enemiesSnapshot;
+
+  BattleState({
+    required this.logMessage,
+    required this.partySnapshot,
+    required this.enemiesSnapshot,
+  });
 }

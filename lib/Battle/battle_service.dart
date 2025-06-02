@@ -4,7 +4,7 @@ import 'dart:math';
 
 import 'package:delve/Ability/ability.dart';
 import 'package:delve/Ability/ability_list.dart';
-import 'package:delve/character.dart';
+import 'package:delve/Character/character.dart';
 import 'package:delve/enums.dart';
 
 class BattleService {

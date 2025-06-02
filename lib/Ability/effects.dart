@@ -1,6 +1,6 @@
 // effects.dart
 import 'dart:math';
-import 'package:delve/character.dart';
+import 'package:delve/Character/character.dart';
 
 abstract class AbilityEffect {
   void apply(Character caster, List<Character> targets, int scale);

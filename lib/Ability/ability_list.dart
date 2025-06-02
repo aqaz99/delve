@@ -1,5 +1,4 @@
-// Maybe JSON in the future?
-
+// ability_list.dart ? Convert to json?
 import 'package:delve/Ability/ability.dart';
 import 'package:delve/Ability/effects.dart';
 import 'package:delve/Ability/target_resolvers.dart';
@@ -40,3 +39,13 @@ final abilityLesserHeal = Ability(
   effect: HealEffect(),
   chance: 100,
 );
+
+final List<Ability> allAbilities = [
+  abilityStrike,
+  abilityFireball,
+  abilityKnightsSwing,
+  abilityLesserHeal,
+];
+
+Ability getAbilityByName(String name) =>
+    allAbilities.firstWhere((a) => a.name == name);

@@ -1,7 +1,7 @@
 // dungeon_service.dart
 import 'package:delve/Ability/ability_list.dart';
 import 'package:delve/Battle/battle_service.dart';
-import 'package:delve/character.dart';
+import 'package:delve/Character/character.dart';
 
 // Add levels / checkpoints / fireside recovery
 class DungeonService {
@@ -17,7 +17,12 @@ class DungeonService {
   late BattleService _battle;
 
   DungeonService({required this.onStateUpdate, required this.onGameOver})
-    : party = _defaultParty();
+    : party = _loadInitialParty();
+
+  static List<Character> _loadInitialParty() {
+    // You'll want to implement async loading here in real app
+    return _defaultParty();
+  }
 
   static List<Character> _defaultParty() {
     return [

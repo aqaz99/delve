@@ -1,4 +1,4 @@
-import 'package:delve/character.dart';
+import 'package:delve/Character/character.dart';
 
 abstract class TargetResolver {
   List<Character> resolve({
@@ -6,6 +6,18 @@ abstract class TargetResolver {
     required List<Character> allies,
     required List<Character> enemies,
   });
+  static TargetResolver fromJson(Map<String, dynamic> json) {
+    switch (json['type']) {
+      case 'RandomEnemy':
+        return RandomEnemyResolver(json['count']);
+      case 'FrontEnemy':
+        return FrontEnemyResolver();
+      case 'LowestHealthAlly':
+        return LowestHealthAllyResolver(json['count']);
+      default:
+        throw Exception('Unknown resolver type');
+    }
+  }
 }
 
 class RandomEnemyResolver extends TargetResolver {
@@ -22,6 +34,8 @@ class RandomEnemyResolver extends TargetResolver {
     validTargets.shuffle();
     return validTargets.take(count).toList();
   }
+
+  Map<String, dynamic> toJson() => {'type': 'RandomEnemy', 'count': count};
 }
 
 class FrontEnemyResolver extends TargetResolver {

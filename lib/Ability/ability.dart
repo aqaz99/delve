@@ -1,7 +1,7 @@
 // ability.dart
 import 'package:delve/Ability/effects.dart';
 import 'package:delve/Ability/target_resolvers.dart';
-import 'package:delve/character.dart';
+import 'package:delve/Character/character.dart';
 import 'package:delve/enums.dart';
 
 class Ability {
@@ -40,4 +40,26 @@ class Ability {
     }
     return useText;
   }
+
+  // Map<String, dynamic> toJson() {
+  //   return {
+  //     'name': name,
+  //     'type': type.name,
+  //     'scale': scale,
+  //     'targetResolver': _targetResolverToJson(targetResolver),
+  //     'effect': _effectToJson(effect),
+  //     'chance': chance,
+  //   };
+  // }
+
+  // static Ability fromJson(Map<String, dynamic> json) {
+  //   return Ability(
+  //     name: json['name'],
+  //     type: AbilityType.values.byName(json['type']),
+  //     scale: json['scale'],
+  //     targetResolver: _targetResolverFromJson(json['targetResolver']),
+  //     effect: _effectFromJson(json['effect']),
+  //     chance: json['chance'],
+  //   );
+  // }
 }

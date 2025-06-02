@@ -10,15 +10,42 @@ class DelveScreen extends StatefulWidget {
 class _DelveScreenState extends State<DelveScreen> {
   late GameController _game;
   final List<String> _log = [];
+  final List<String> _logBuffer = [];
+  bool _isProcessingLogs = false;
   final _logController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _game = GameController(
-      onLog: (msg) => setState(() => _log.add(msg)),
+      onLog: _handleNewLog,
       onGameOver: () => setState(() {}),
     );
+  }
+
+  void _handleNewLog(String msg) {
+    _logBuffer.add(msg);
+    if (!_isProcessingLogs) {
+      _processLogs();
+    }
+  }
+
+  void _handleStateUpdate() {
+    if (!_isProcessingLogs) {
+      _processLogs();
+    }
+  }
+
+  void _processLogs() async {
+    _isProcessingLogs = true;
+    while (_logBuffer.isNotEmpty) {
+      String msg = _logBuffer.removeAt(0);
+      setState(() => _log.add(msg));
+      setState(() {}); // Trigger state update for HP changes
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+      await Future.delayed(const Duration(milliseconds: 250));
+    }
+    _isProcessingLogs = false;
   }
 
   void _startGameLoop() async {

@@ -36,20 +36,6 @@ final characterWarlock = Character(
   abilities: [abilityReap],
 );
 
-// final characterPaladin = Character(
-//   name: 'Paladin',
-//   maxHealth: 35,
-//   speed: 4,
-//   abilities: [abilitySmite],
-// );
-
-// final characterRanger = Character(
-//   name: 'Ranger',
-//   maxHealth: 28,
-//   speed: 5,
-//   abilities: [abilityArrowVolley],
-// );
-
 final List<Character> allCharacters = [
   characterWarrior,
   characterMage,

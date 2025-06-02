@@ -1,5 +1,8 @@
 import 'package:delve/Ability/ability.dart';
 import 'package:delve/Ability/ability_list.dart';
+import 'dart:math';
+
+import 'package:delve/Character/character_list.dart';
 
 class Character {
   final String name;
@@ -47,4 +50,13 @@ class Character {
   }
 
   bool get isAlive => currentHealth > 0;
+}
+
+List<Character> getThreeRandomCharacters() {
+  final random = Random();
+  if (allCharacters.length < 3) {
+    throw Exception('Not enough characters to select three random ones.');
+  }
+  allCharacters.shuffle(random);
+  return allCharacters.take(3).toList();
 }

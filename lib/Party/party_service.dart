@@ -17,7 +17,11 @@ class PartyService {
   Future<List<Character>> loadParty() async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString(_key);
-    if (jsonString == null) return [];
+    if (jsonString == null) {
+      List<Character> newParty = getThreeRandomCharacters();
+      saveParty(newParty);
+      return newParty;
+    }
 
     try {
       final jsonList = jsonDecode(jsonString) as List<dynamic>;

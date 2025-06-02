@@ -10,26 +10,15 @@ class BattleService {
   final BattleContext _context;
   final Function(String) onLog;
   final _random = Random();
-  var _isBattleActive = false;
 
   BattleService({required this.onLog, required BattleContext context})
     : _context = context;
 
-  Future<void> run() async {
-    _isBattleActive = true;
-
+  Future<void> runBattle() async {
     final participants = _getInitiativeOrder();
 
-    while (_isBattleActive && _context.battleActive) {
-      for (final character in participants) {
-        if (!_isBattleActive) break;
-        await _processTurn(character);
-        if (!_context.battleActive) break;
-      }
-    }
-
-    if (_isBattleActive) {
-      onLog(_context.partyAlive ? 'Victory!' : 'Defeat!');
+    for (final character in participants) {
+      await _processTurn(character);
     }
   }
 
@@ -46,7 +35,6 @@ class BattleService {
 
     if (ability != null) {
       useAbility(character, ability);
-      await Future.delayed(const Duration(milliseconds: 500));
     }
   }
 
@@ -110,10 +98,6 @@ class BattleService {
     );
 
     _context.removeDeadCharacters();
-  }
-
-  void toggleBattle() {
-    _isBattleActive = !_isBattleActive;
   }
 }
 

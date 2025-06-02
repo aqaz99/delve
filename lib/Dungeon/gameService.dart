@@ -1,7 +1,6 @@
 // gameController.dart
 import 'package:delve/Ability/ability_list.dart';
 import 'package:delve/Battle/battleService.dart';
-import 'package:delve/Dungeon/dungeonService.dart';
 import 'package:delve/character.dart';
 
 class GameController {
@@ -40,6 +39,18 @@ class GameController {
     ];
   }
 
+  List<Character> generateEnemies(int depth) {
+    return List.generate(
+      3,
+      (i) => Character(
+        name: 'Goblin ${i + 1}',
+        maxHealth: 15 + depth * 3,
+        speed: 3 + depth,
+        abilities: [],
+      ),
+    );
+  }
+
   void goDeeper() {
     depth++;
     generateEncounter();
@@ -47,20 +58,19 @@ class GameController {
 
   void generateEncounter() {
     gameStarted = true;
-    enemies = DungeonService().generateEnemies(depth);
+    enemies = generateEnemies(depth);
   }
 
   Future<void> progressRound() async {
     var ctx = BattleContext(List.from(party), enemies);
     _battle = BattleService(
       context: ctx,
-      onState: (state) => onStateUpdate(state), // New callback
+      onState: (state) => onStateUpdate(state),
     );
 
     await _battle.runBattleRound();
 
     if (!ctx.partyAlive) {
-      // onLog('GAME OVER');
       onGameOver();
       return;
     }

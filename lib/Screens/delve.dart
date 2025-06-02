@@ -3,7 +3,6 @@ import 'package:delve/Battle/battleService.dart';
 import 'package:delve/Dungeon/gameService.dart';
 import 'package:delve/character.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/scheduler/binding.dart';
 
 class DelveScreen extends StatefulWidget {
   @override

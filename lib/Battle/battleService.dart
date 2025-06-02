@@ -1,4 +1,3 @@
-// battleService.dart
 import 'dart:async';
 import 'dart:math';
 

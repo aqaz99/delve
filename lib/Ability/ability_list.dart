@@ -39,13 +39,31 @@ final abilityLesserHeal = Ability(
   effect: HealEffect(),
   chance: 100,
 );
+final abilityBackstab = Ability(
+  name: 'Backstab',
+  type: AbilityType.damage,
+  scale: 6,
+  targetResolver: LastEnemyResolver(),
+  effect: DamageEffect(),
+  chance: 50,
+);
+
+final abilityReap = Ability(
+  name: 'Reap',
+  type: AbilityType.damage,
+  scale: 2,
+  targetResolver: RandomEnemyResolver(2),
+  effect: DamageEffect(),
+  chance: 50,
+);
 
 final List<Ability> allAbilities = [
   abilityStrike,
   abilityFireball,
   abilityKnightsSwing,
   abilityLesserHeal,
+  abilityBackstab,
+  abilityReap,
 ];
-
 Ability getAbilityByName(String name) =>
     allAbilities.firstWhere((a) => a.name == name);

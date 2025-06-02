@@ -65,3 +65,15 @@ class LowestHealthAllyResolver extends TargetResolver {
     return validTargets.take(count).toList();
   }
 }
+
+class LastEnemyResolver extends TargetResolver {
+  @override
+  List<Character> resolve({
+    required Character caster,
+    required List<Character> allies,
+    required List<Character> enemies,
+  }) {
+    final validTargets = enemies.where((e) => e.isAlive).toList();
+    return validTargets.isNotEmpty ? [validTargets.last] : [];
+  }
+}

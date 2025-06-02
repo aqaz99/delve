@@ -17,9 +17,9 @@ class DungeonService {
   late BattleService _battle;
 
   DungeonService({required this.onStateUpdate, required this.onGameOver})
-    : party = _loadInitialParty();
+    : party = loadInitialParty();
 
-  static List<Character> _loadInitialParty() {
+  static List<Character> loadInitialParty() {
     // You'll want to implement async loading here in real app
     return _defaultParty();
   }

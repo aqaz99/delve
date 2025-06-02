@@ -24,4 +24,9 @@ class CharacterRepository {
       return [];
     }
   }
+
+  Future<void> clearSavedParty() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_key);
+  }
 }

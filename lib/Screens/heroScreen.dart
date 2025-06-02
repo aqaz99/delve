@@ -1,5 +1,6 @@
 import 'package:delve/Character/character.dart';
 import 'package:delve/Character/character_repository.dart';
+import 'package:delve/Dungeon/dungeon_service.dart';
 import 'package:flutter/material.dart';
 
 class HeroScreen extends StatefulWidget {
@@ -10,6 +11,19 @@ class HeroScreen extends StatefulWidget {
 class _HeroScreenState extends State<HeroScreen> {
   final CharacterRepository _repo = CharacterRepository();
   late Future<List<Character>> _partyFuture;
+
+  Future<void> _saveDebugParty() async {
+    // Get default party from your game service
+    final defaultParty = DungeonService.loadInitialParty();
+    ();
+    await _repo.saveParty(defaultParty);
+    _refreshParty();
+  }
+
+  Future<void> _clearSavedData() async {
+    await _repo.clearSavedParty();
+    _refreshParty();
+  }
 
   @override
   void initState() {
@@ -59,7 +73,21 @@ class _HeroScreenState extends State<HeroScreen> {
       appBar: AppBar(
         title: const Text('Party Members'),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: _refreshParty),
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: _saveDebugParty,
+            tooltip: 'Save Default Party',
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: _clearSavedData,
+            tooltip: 'Clear Saved Data',
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _refreshParty,
+            tooltip: 'Reload Data',
+          ),
         ],
       ),
       body: FutureBuilder<List<Character>>(

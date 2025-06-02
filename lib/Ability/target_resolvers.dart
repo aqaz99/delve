@@ -34,8 +34,6 @@ class RandomEnemyResolver extends TargetResolver {
     validTargets.shuffle();
     return validTargets.take(count).toList();
   }
-
-  Map<String, dynamic> toJson() => {'type': 'RandomEnemy', 'count': count};
 }
 
 class FrontEnemyResolver extends TargetResolver {

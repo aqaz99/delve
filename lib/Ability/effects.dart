@@ -1,5 +1,5 @@
+// effects.dart
 import 'dart:math';
-
 import 'package:delve/character.dart';
 
 abstract class AbilityEffect {

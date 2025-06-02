@@ -1,8 +1,9 @@
-// gameController.dart
+// dungeon_service.dart
 import 'package:delve/Ability/ability_list.dart';
 import 'package:delve/Battle/battle_service.dart';
 import 'package:delve/character.dart';
 
+// Add levels / checkpoints / fireside recovery
 class DungeonService {
   List<Character> party;
   List<Character> enemies = [];
@@ -79,15 +80,5 @@ class DungeonService {
       onGameOver();
       return;
     }
-
-    // Add levels / checkpoints / fireside recovery
   }
-
-  // void _emitState(BattleState state) {
-  //   onStateUpdate.call(state);
-  // }
-
-  // List<Character> _deepCopy(List<Character> originals) {
-  //   return originals.map((c) => Character.copy(c)).toList();
-  // }
 }

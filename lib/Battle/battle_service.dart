@@ -16,7 +16,6 @@ class BattleService {
     : _context = context;
 
   Future<void> runBattleRound(int round) async {
-    print("333");
     final participants = _getInitiativeOrder();
 
     var state = BattleState(

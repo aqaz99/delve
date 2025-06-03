@@ -52,19 +52,21 @@ class DungeonService {
   }
 
   Future<void> progressRound() async {
-    currentRound++;
+    while (enemies.any((c) => c.isAlive)) {
+      currentRound++;
 
-    var ctx = BattleContext(List.from(party), enemies);
-    _battle = BattleService(
-      context: ctx,
-      onState: (state) => onStateUpdate(state),
-    );
+      var ctx = BattleContext(List.from(party), enemies);
+      _battle = BattleService(
+        context: ctx,
+        onState: (state) => onStateUpdate(state),
+      );
 
-    await _battle.runBattleRound(currentRound);
+      await _battle.runBattleRound(currentRound);
 
-    if (!ctx.partyAlive) {
-      onGameOver();
-      return;
+      if (!ctx.partyAlive) {
+        onGameOver();
+        return;
+      }
     }
   }
 }

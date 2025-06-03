@@ -54,7 +54,6 @@ class _DelveScreenState extends State<DelveScreen> {
     if (!_game.enemies.any((c) => c.isAlive)) {
       _game.goDeeper();
     }
-
     await _game.progressRound();
     _scrollToBottom(Duration.zero);
   }

@@ -6,6 +6,8 @@ import 'package:delve/Ability/ability.dart';
 import 'package:delve/Ability/ability_list.dart';
 import 'package:delve/Character/character.dart';
 import 'package:delve/enums.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class BattleService {
   final BattleContext _context;
@@ -19,7 +21,12 @@ class BattleService {
     final participants = _getInitiativeOrder();
 
     var state = BattleState(
-      logMessage: '────────── Round $round ──────────',
+      logMessage: RichText(
+        text: TextSpan(
+          text: '────────── Round $round ──────────',
+          style: TextStyle(color: Colors.black),
+        ),
+      ),
       partySnapshot: _deepCopy(_context.allies),
       enemiesSnapshot: _deepCopy(_context.enemies),
     );
@@ -93,7 +100,7 @@ class BattleService {
 
     ability.effect.apply(caster, targets, ability.scale);
     final state = BattleState(
-      logMessage: ability.abilityUseText(caster, targets),
+      logMessage: ability.abilityUseText(caster, targets, isAlly),
       partySnapshot: _deepCopy(_context.allies),
       enemiesSnapshot: _deepCopy(_context.enemies),
     );
@@ -119,7 +126,7 @@ class BattleContext {
 }
 
 class BattleState {
-  final String logMessage;
+  final RichText logMessage;
   final List<Character> partySnapshot;
   final List<Character> enemiesSnapshot;
   final bool isSeparator;

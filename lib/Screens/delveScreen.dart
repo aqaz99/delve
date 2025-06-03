@@ -34,6 +34,7 @@ class _DelveScreenState extends State<DelveScreen> {
 
   void _processStates() async {
     _isProcessing = true;
+
     while (_stateBuffer.isNotEmpty) {
       final state = _stateBuffer.removeAt(0);
       setState(() {
@@ -42,10 +43,12 @@ class _DelveScreenState extends State<DelveScreen> {
         _game.enemies = state.enemiesSnapshot;
       });
       WidgetsBinding.instance.addPostFrameCallback(_scrollToBottom);
-      await Future.delayed(const Duration(milliseconds: 250));
+      await Future.delayed(const Duration(milliseconds: 750));
     }
     _isProcessing = false;
   }
+
+  // I think the final state is being shown and then the states from the beginning display
 
   void _delve() async {
     if (!_game.gameStarted) {
@@ -54,6 +57,7 @@ class _DelveScreenState extends State<DelveScreen> {
     if (!_game.enemies.any((c) => c.isAlive)) {
       _game.goDeeper();
     }
+    // _visibleStates.clear();
     await _game.progressRound();
     _scrollToBottom(Duration.zero);
   }
@@ -61,7 +65,7 @@ class _DelveScreenState extends State<DelveScreen> {
   void _scrollToBottom(Duration _) {
     _logController.animateTo(
       _logController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 750),
       curve: Curves.easeOut,
     );
   }
@@ -153,12 +157,8 @@ class _DelveScreenState extends State<DelveScreen> {
                   controller: _logController,
                   itemCount: _visibleStates.length,
                   itemBuilder:
-                      (context, i) => ListTile(
-                        title: Text(
-                          _visibleStates[i].logMessage,
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ),
+                      (context, i) =>
+                          ListTile(title: _visibleStates[i].logMessage),
                 ),
               ),
             ],

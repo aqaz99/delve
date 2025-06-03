@@ -36,7 +36,7 @@ class Ability {
             style: TextStyle(color: isAlly ? Colors.blue : Colors.red),
           ),
           TextSpan(text: "uses ", style: TextStyle(color: Colors.black)),
-          TextSpan(text: "$name ", style: TextStyle(color: Colors.red)),
+          TextSpan(text: "$name ", style: TextStyle(color: Colors.blueGrey)),
           TextSpan(text: "on ", style: TextStyle(color: Colors.black)),
           TextSpan(
             text: "${targets.map((t) => t.name).join(', ')} ",
@@ -45,7 +45,7 @@ class Ability {
           TextSpan(text: "for ", style: TextStyle(color: Colors.black)),
           TextSpan(
             text: "$scale",
-            style: TextStyle(color: const Color.fromARGB(255, 200, 154, 2)),
+            style: TextStyle(color: const Color.fromARGB(255, 160, 123, 2)),
           ),
         ],
       ),

@@ -47,7 +47,7 @@ class _DelveScreenState extends State<DelveScreen> {
     _isProcessing = false;
   }
 
-  void _nextRound() async {
+  void _delve() async {
     if (!_game.gameStarted) {
       _game.generateEncounter();
     }
@@ -108,10 +108,12 @@ class _DelveScreenState extends State<DelveScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      child: Text(getSimulateText()),
+                      child: Text(getDelveText()),
                       onPressed:
                           () => setState(() {
-                            _nextRound();
+                            _game.enemies.any((c) => c.isAlive)
+                                ? null
+                                : _delve();
                           }),
                     ),
                     const SizedBox(width: 10),
@@ -166,7 +168,7 @@ class _DelveScreenState extends State<DelveScreen> {
     );
   }
 
-  String getSimulateText() {
+  String getDelveText() {
     if (!_game.gameStarted) {
       return "Delve";
     }

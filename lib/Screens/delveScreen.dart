@@ -54,13 +54,7 @@ class _DelveScreenState extends State<DelveScreen> {
     if (!_game.enemies.any((c) => c.isAlive)) {
       _game.goDeeper();
     }
-    _visibleStates.add(
-      BattleState(
-        logMessage: '────────── Round ${_game.currentRound} ──────────',
-        partySnapshot: _game.party,
-        enemiesSnapshot: _game.enemies,
-      ),
-    );
+
     await _game.progressRound();
     _scrollToBottom(Duration.zero);
   }

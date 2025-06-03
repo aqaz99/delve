@@ -60,7 +60,7 @@ class DungeonService {
       onState: (state) => onStateUpdate(state),
     );
 
-    await _battle.runBattleRound();
+    await _battle.runBattleRound(currentRound);
 
     if (!ctx.partyAlive) {
       onGameOver();

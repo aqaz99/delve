@@ -15,9 +15,16 @@ class BattleService {
   BattleService({required this.onState, required BattleContext context})
     : _context = context;
 
-  Future<void> runBattleRound() async {
+  Future<void> runBattleRound(int round) async {
+    print("333");
     final participants = _getInitiativeOrder();
 
+    var state = BattleState(
+      logMessage: '────────── Round $round ──────────',
+      partySnapshot: _deepCopy(_context.allies),
+      enemiesSnapshot: _deepCopy(_context.enemies),
+    );
+    onState(state);
     for (final character in participants) {
       await _processTurn(character);
     }

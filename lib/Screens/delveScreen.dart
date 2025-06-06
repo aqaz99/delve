@@ -9,7 +9,15 @@ class DelveScreen extends StatefulWidget {
   _DelveScreenState createState() => _DelveScreenState();
 }
 
-class _DelveScreenState extends State<DelveScreen> {
+class _DelveScreenState extends State<DelveScreen> with WidgetsBindingObserver {
+  // Add to existing state
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _reloadParty();
+    }
+  }
+
   late DungeonService _game;
   late Future<List<Character>> _loadPartyFuture;
   final List<BattleState> _stateBuffer = [];
@@ -20,11 +28,24 @@ class _DelveScreenState extends State<DelveScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _game = DungeonService(
       onStateUpdate: _handleNewState,
       onGameOver: () => setState(() {}),
     );
     _loadPartyFuture = _game.loadDungeonParty();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  void _reloadParty() {
+    setState(() {
+      _loadPartyFuture = _game.loadDungeonParty();
+    });
   }
 
   void _handleNewState(BattleState state) {
@@ -43,7 +64,7 @@ class _DelveScreenState extends State<DelveScreen> {
         _game.enemies = state.enemiesSnapshot;
       });
       WidgetsBinding.instance.addPostFrameCallback(_scrollToBottom);
-      await Future.delayed(const Duration(milliseconds: 750));
+      await Future.delayed(const Duration(milliseconds: 300));
     }
     _isProcessing = false;
   }
@@ -65,7 +86,7 @@ class _DelveScreenState extends State<DelveScreen> {
   void _scrollToBottom(Duration _) {
     _logController.animateTo(
       _logController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 750),
+      duration: const Duration(milliseconds: 300),
       curve: Curves.easeOut,
     );
   }

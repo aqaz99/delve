@@ -21,9 +21,6 @@ class DungeonService {
 
   Future<List<Character>> loadDungeonParty() async {
     party = await _partyService.loadParty();
-    for (var element in party) {
-      print(element);
-    }
     return party;
   }
 

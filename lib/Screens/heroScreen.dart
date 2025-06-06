@@ -20,6 +20,7 @@ class _HeroScreenState extends State<HeroScreen> {
 
   Future<void> _clearSavedData() async {
     await _partyService.clearSavedParty();
+    await _partyService.clearDelveState();
     _refreshParty();
   }
 

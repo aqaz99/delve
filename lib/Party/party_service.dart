@@ -5,25 +5,20 @@ import 'package:delve/Dungeon/dungeon_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PartyService {
-  static const _key = 'saved_party';
+  static const _partyKey = 'saved_party';
   static const _delveKey = 'delve_state';
-
-  Future<void> clearDelveState() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_delveKey);
-  }
 
   PartyService();
 
   Future<void> saveParty(List<Character> party) async {
     final prefs = await SharedPreferences.getInstance();
     final jsonList = party.map((c) => c.toJson()).toList();
-    await prefs.setString(_key, jsonEncode(jsonList));
+    await prefs.setString(_partyKey, jsonEncode(jsonList));
   }
 
   Future<List<Character>> loadParty() async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString(_key);
+    final jsonString = prefs.getString(_partyKey);
     if (jsonString == null) {
       List<Character> newParty = getThreeRandomCharacters();
       saveParty(newParty);
@@ -40,7 +35,12 @@ class PartyService {
 
   Future<void> clearSavedParty() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_key);
+    await prefs.remove(_partyKey);
+  }
+
+  Future<void> clearDelveState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_delveKey);
   }
 
   Future<void> saveDelveState(DelveState state) async {

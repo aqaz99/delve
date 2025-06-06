@@ -65,12 +65,32 @@ class _HeroScreenState extends State<HeroScreen> {
     });
   }
 
+  Future<void> _healParty() async {
+    final party = await _partyFuture;
+    final healedParty =
+        party.map((character) {
+          final newHealth = (character.currentHealth + 5).clamp(
+            0,
+            character.maxHealth,
+          );
+          return character.copyWith(currentHealth: newHealth);
+        }).toList();
+
+    await _partyService.saveParty(healedParty);
+    _refreshParty();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Party Members'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.healing),
+            onPressed: _healParty,
+            tooltip: 'Heal Party (+5 HP)',
+          ),
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: _saveDebugParty,

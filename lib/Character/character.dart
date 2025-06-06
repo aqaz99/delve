@@ -29,6 +29,24 @@ class Character {
       currentlyDelving = other.currentlyDelving,
       abilities = List.from(other.abilities);
 
+  Character copyWith({
+    String? name,
+    int? maxHealth,
+    int? currentHealth,
+    int? speed,
+    List<Ability>? abilities,
+    bool? currentlyDelving,
+  }) {
+    return Character(
+      name: name ?? this.name,
+      maxHealth: maxHealth ?? this.maxHealth,
+      currentHealth: currentHealth ?? this.currentHealth,
+      speed: speed ?? this.speed,
+      abilities: abilities ?? List.from(this.abilities),
+      currentlyDelving: currentlyDelving ?? this.currentlyDelving,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'name': name,

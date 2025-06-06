@@ -139,27 +139,21 @@ class _DelveScreenState extends State<DelveScreen> {
           return Column(
             children: [
               // Controls
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      child: Text(getDelveText()),
-                      onPressed:
-                          () => setState(() {
-                            _game.enemies.any((c) => c.isAlive)
-                                ? null
-                                : _delve();
-                          }),
-                    ),
-                    const SizedBox(width: 10),
-                    ElevatedButton(
-                      onPressed: _resetGame,
-                      child: const Text('Reset'),
-                    ),
-                  ],
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _game.party.any((c) => c.isAlive)
+                      ? ElevatedButton(
+                        child: Text(getDelveText()),
+                        onPressed:
+                            () => setState(() {
+                              _game.enemies.any((c) => c.isAlive)
+                                  ? null
+                                  : _delve();
+                            }),
+                      )
+                      : Container(),
+                ],
               ),
 
               // Game Info

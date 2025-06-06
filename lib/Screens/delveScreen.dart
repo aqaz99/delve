@@ -9,16 +9,9 @@ class DelveScreen extends StatefulWidget {
   _DelveScreenState createState() => _DelveScreenState();
 }
 
-class _DelveScreenState extends State<DelveScreen> with WidgetsBindingObserver {
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _reloadParty();
-    }
-  }
-
+class _DelveScreenState extends State<DelveScreen> {
   late DungeonService _game;
-  late Future<List<Character>> _loadPartyFuture;
+  late Future<List<dynamic>> _loadPartyFuture;
   final List<BattleState> _stateBuffer = [];
   final List<BattleState> _visibleStates = [];
   bool _isProcessing = false;
@@ -27,24 +20,41 @@ class _DelveScreenState extends State<DelveScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+
     _game = DungeonService(
       onStateUpdate: _handleNewState,
       onGameOver: () => setState(() {}),
     );
-    _loadPartyFuture = _game.loadDungeonParty();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
+    _loadPartyFuture = Future.wait([
+      _game.loadDungeonParty(),
+      _game.loadProgress(),
+    ]);
   }
 
   void _reloadParty() {
     setState(() {
       _loadPartyFuture = _game.loadDungeonParty();
     });
+  }
+
+  Future<void> loadProgress() async {
+    final savedState = await _game.partyService.loadDelveState();
+    if (savedState != null) {
+      _game.depth = savedState.depth;
+      _game.currentRound = savedState.currentRound;
+      _game.defeatedDepth = savedState.defeatedDepth;
+      _game.enemies =
+          savedState.enemies
+              .map((e) => Character.fromJson(e.toJson()))
+              .toList();
+
+      for (var e in _game.enemies) {
+        e.currentlyDelving = true;
+        e.currentHealth = e.currentHealth.clamp(0, e.maxHealth);
+      }
+
+      _game.gameStarted = _game.enemies.isNotEmpty;
+    }
   }
 
   void _handleNewState(BattleState state) {
@@ -63,7 +73,7 @@ class _DelveScreenState extends State<DelveScreen> with WidgetsBindingObserver {
         _game.enemies = state.enemiesSnapshot;
       });
       WidgetsBinding.instance.addPostFrameCallback(_scrollToBottom);
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future.delayed(const Duration(milliseconds: 100));
     }
     _isProcessing = false;
   }
@@ -104,12 +114,15 @@ class _DelveScreenState extends State<DelveScreen> with WidgetsBindingObserver {
     );
   }
 
-  void _resetGame() {
+  void _resetGame() async {
+    await _game.partyService.clearSavedParty();
+    await _game.partyService.clearDelveState();
     setState(() {
       _game = DungeonService(
         onStateUpdate: (msg) => setState(() => {}),
         onGameOver: () => setState(() {}),
       );
+      _loadPartyFuture = _game.loadDungeonParty();
     });
   }
 

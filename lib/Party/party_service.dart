@@ -1,10 +1,17 @@
 import 'dart:convert';
 
 import 'package:delve/Character/character.dart';
+import 'package:delve/Dungeon/dungeon_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PartyService {
   static const _key = 'saved_party';
+  static const _delveKey = 'delve_state';
+
+  Future<void> clearDelveState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_delveKey);
+  }
 
   PartyService();
 
@@ -34,5 +41,25 @@ class PartyService {
   Future<void> clearSavedParty() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
+  }
+
+  Future<void> saveDelveState(DelveState state) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_delveKey, jsonEncode(state.toJson()));
+  }
+
+  Future<DelveState?> loadDelveState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(_delveKey);
+
+    if (jsonString == null) return null;
+
+    try {
+      final json = jsonDecode(jsonString) as Map<String, dynamic>;
+      return DelveState.fromJson(json);
+    } catch (e) {
+      print('Error loading delve state: $e');
+      return null;
+    }
   }
 }

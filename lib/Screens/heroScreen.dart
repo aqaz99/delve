@@ -8,14 +8,7 @@ class HeroScreen extends StatefulWidget {
   _HeroScreenState createState() => _HeroScreenState();
 }
 
-class _HeroScreenState extends State<HeroScreen> with WidgetsBindingObserver {
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _refreshParty();
-    }
-  }
-
+class _HeroScreenState extends State<HeroScreen> {
   final PartyService _partyService = PartyService();
   late Future<List<Character>> _partyFuture;
 
@@ -33,14 +26,7 @@ class _HeroScreenState extends State<HeroScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     _partyFuture = _partyService.loadParty();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 
   void _showCharacterDetails(Character character) {

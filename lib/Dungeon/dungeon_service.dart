@@ -13,14 +13,36 @@ class DungeonService {
   bool gameStarted = false;
   bool defeatedDepth = false;
   final Function() onGameOver;
-  final PartyService _partyService = PartyService();
+  final PartyService partyService = PartyService();
 
   late BattleService _battle;
 
   DungeonService({required this.onStateUpdate, required this.onGameOver});
 
+  Future<void> loadProgress() async {
+    final savedState = await partyService.loadDelveState();
+    if (savedState != null) {
+      depth = savedState.depth;
+      currentRound = savedState.currentRound;
+      defeatedDepth = savedState.defeatedDepth;
+      enemies = savedState.enemies;
+    }
+  }
+
+  Future<void> saveProgress() async {
+    await partyService.saveDelveState(
+      DelveState(
+        depth: depth,
+        currentRound: currentRound,
+        defeatedDepth: defeatedDepth,
+        enemies: enemies,
+      ),
+    );
+    await partyService.saveParty(party);
+  }
+
   Future<List<Character>> loadDungeonParty() async {
-    party = await _partyService.loadParty();
+    party = await partyService.loadParty();
     return party;
   }
 
@@ -41,6 +63,7 @@ class DungeonService {
     depth++;
     currentRound = 0;
     generateEncounter();
+    saveProgress();
   }
 
   void setAllyCharactersActivelyDelving() {
@@ -66,11 +89,43 @@ class DungeonService {
       );
 
       await _battle.runBattleRound(currentRound);
-      _partyService.saveParty(party);
+      await saveProgress();
+      partyService.saveParty(party);
       if (!ctx.partyAlive) {
         onGameOver();
         return;
       }
     }
   }
+}
+
+class DelveState {
+  final int depth;
+  final int currentRound;
+  final bool defeatedDepth;
+  final List<Character> enemies;
+
+  DelveState({
+    required this.depth,
+    required this.currentRound,
+    required this.defeatedDepth,
+    required this.enemies,
+  });
+
+  factory DelveState.fromJson(Map<String, dynamic> json) {
+    return DelveState(
+      depth: json['depth'],
+      currentRound: json['currentRound'],
+      defeatedDepth: json['defeatedDepth'],
+      enemies:
+          (json['enemies'] as List).map((e) => Character.fromJson(e)).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'depth': depth,
+    'currentRound': currentRound,
+    'defeatedDepth': defeatedDepth,
+    'enemies': enemies.map((e) => e.toJson()).toList(),
+  };
 }

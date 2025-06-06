@@ -10,12 +10,14 @@ class Character {
   int currentHealth;
   int speed;
   List<Ability> abilities;
+  bool currentlyDelving;
 
   Character({
     required this.name,
     required this.maxHealth,
     required this.speed,
     required this.abilities,
+    required this.currentlyDelving,
     int? currentHealth,
   }) : currentHealth = currentHealth ?? maxHealth;
 
@@ -24,6 +26,7 @@ class Character {
       maxHealth = other.maxHealth,
       currentHealth = other.currentHealth,
       speed = other.speed,
+      currentlyDelving = other.currentlyDelving,
       abilities = List.from(other.abilities);
 
   Map<String, dynamic> toJson() {
@@ -46,6 +49,7 @@ class Character {
           (json['abilities'] as List)
               .map((name) => getAbilityByName(name))
               .toList(),
+      currentlyDelving: json['currentlyDelving'],
     );
   }
 

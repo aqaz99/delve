@@ -35,6 +35,7 @@ class DungeonService {
         maxHealth: 15 + depth * 3,
         speed: 3 + depth,
         abilities: [],
+        currentlyDelving: true,
       ),
     );
   }
@@ -45,9 +46,16 @@ class DungeonService {
     generateEncounter();
   }
 
+  void setAllyCharactersActivelyDelving() {
+    for (var character in party) {
+      character.currentlyDelving = true;
+    }
+  }
+
   void generateEncounter() {
     gameStarted = true;
     enemies = generateEnemies(depth);
+    setAllyCharactersActivelyDelving();
   }
 
   Future<void> progressRound() async {

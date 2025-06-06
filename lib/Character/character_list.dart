@@ -7,12 +7,14 @@ final characterWarrior = Character(
   maxHealth: 30,
   speed: 5,
   abilities: [abilityKnightsSwing],
+  currentlyDelving: false,
 );
 final characterMage = Character(
   name: 'Mage',
   maxHealth: 25,
   speed: 4,
   abilities: [abilityFireball],
+  currentlyDelving: false,
 );
 
 final characterCleric = Character(
@@ -20,6 +22,7 @@ final characterCleric = Character(
   maxHealth: 25,
   speed: 3,
   abilities: [abilityLesserHeal],
+  currentlyDelving: false,
 );
 
 final characterRogue = Character(
@@ -27,6 +30,7 @@ final characterRogue = Character(
   maxHealth: 20,
   speed: 6,
   abilities: [abilityBackstab],
+  currentlyDelving: false,
 );
 
 final characterWarlock = Character(
@@ -34,6 +38,7 @@ final characterWarlock = Character(
   maxHealth: 22,
   speed: 4,
   abilities: [abilityReap],
+  currentlyDelving: false,
 );
 
 final List<Character> allCharacters = [

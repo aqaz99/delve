@@ -103,7 +103,9 @@ class _HeroScreenState extends State<HeroScreen> {
               return ListTile(
                 title: Text(character.name),
                 subtitle: Text('Level/Maxhealth ${character.maxHealth}'),
-                trailing: Text('HP: ${character.currentHealth}'),
+                trailing: Text(
+                  'HP: ${character.currentHealth} - ${character.currentlyDelving}',
+                ),
                 onTap: () => _showCharacterDetails(character),
               );
             },

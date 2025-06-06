@@ -11,7 +11,10 @@ class PartyService {
   Future<void> saveParty(List<Character> party) async {
     final prefs = await SharedPreferences.getInstance();
     final jsonList = party.map((c) => c.toJson()).toList();
+    print("saving: $_key, ${json}");
     await prefs.setString(_key, jsonEncode(jsonList));
+    final jsonString = prefs.getString(_key);
+    print(jsonString);
   }
 
   Future<List<Character>> loadParty() async {

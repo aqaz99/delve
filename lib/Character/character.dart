@@ -36,6 +36,7 @@ class Character {
       'currentHealth': currentHealth,
       'speed': speed,
       'abilities': abilities.map((a) => a.name).toList(),
+      'currentlyDelving': currentlyDelving,
     };
   }
 

@@ -1,60 +1,32 @@
-// delve_screen.dart
 import 'package:delve/Battle/battle_service.dart';
 import 'package:delve/Dungeon/dungeon_service.dart';
 import 'package:delve/Character/character.dart';
+import 'package:delve/Party/party_service.dart';
+import 'package:delve/providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DelveScreen extends StatefulWidget {
+class DelveScreen extends ConsumerStatefulWidget {
   @override
-  _DelveScreenState createState() => _DelveScreenState();
+  ConsumerState<DelveScreen> createState() => _DelveScreenState();
 }
 
-class _DelveScreenState extends State<DelveScreen> {
+class _DelveScreenState extends ConsumerState<DelveScreen> {
   late DungeonService _game;
-  late Future<List<dynamic>> _loadPartyFuture;
+  late Future<void> _loadProgressFuture;
   final List<BattleState> _stateBuffer = [];
   final List<BattleState> _visibleStates = [];
   bool _isProcessing = false;
   final _logController = ScrollController();
 
+  // IN initState - USE PROVIDER FOR DUNGEON SERVICE
   @override
   void initState() {
     super.initState();
-
-    _game = DungeonService(
-      onStateUpdate: _handleNewState,
-      onGameOver: () => setState(() {}),
-    );
-    _loadPartyFuture = Future.wait([
-      _game.loadDungeonParty(),
-      _game.loadProgress(),
-    ]);
-  }
-
-  void _reloadParty() {
-    setState(() {
-      _loadPartyFuture = _game.loadDungeonParty();
-    });
-  }
-
-  Future<void> loadProgress() async {
-    final savedState = await _game.partyService.loadDelveState();
-    if (savedState != null) {
-      _game.depth = savedState.depth;
-      _game.currentRound = savedState.currentRound;
-      _game.defeatedDepth = savedState.defeatedDepth;
-      _game.enemies =
-          savedState.enemies
-              .map((e) => Character.fromJson(e.toJson()))
-              .toList();
-
-      for (var e in _game.enemies) {
-        e.currentlyDelving = true;
-        e.currentHealth = e.currentHealth.clamp(0, e.maxHealth);
-      }
-
-      _game.gameStarted = _game.enemies.isNotEmpty;
-    }
+    _game = ref.read(
+      dungeonServiceProvider,
+    ); // Get from provider instead of manual creation
+    _loadProgressFuture = _game.loadProgress(ref); // Add ref parameter
   }
 
   void _handleNewState(BattleState state) {
@@ -64,40 +36,31 @@ class _DelveScreenState extends State<DelveScreen> {
 
   void _processStates() async {
     _isProcessing = true;
-
     while (_stateBuffer.isNotEmpty) {
       final state = _stateBuffer.removeAt(0);
-      setState(() {
-        _visibleStates.add(state);
-        _game.party = state.partySnapshot;
-        _game.enemies = state.enemiesSnapshot;
-      });
+      setState(() => _visibleStates.add(state));
       WidgetsBinding.instance.addPostFrameCallback(_scrollToBottom);
       await Future.delayed(const Duration(milliseconds: 100));
     }
     _isProcessing = false;
   }
 
-  // I think the final state is being shown and then the states from the beginning display
-
   void _delve() async {
-    if (!_game.gameStarted) {
-      _game.generateEncounter();
-    }
-    if (!_game.enemies.any((c) => c.isAlive)) {
-      _game.goDeeper();
-    }
+    if (!_game.gameStarted) _game.generateEncounter(ref);
+    if (!_game.enemies.any((c) => c.isAlive)) _game.goDeeper(ref);
 
-    await _game.progressRound();
+    await _game.progressRound(ref);
     _scrollToBottom(Duration.zero);
   }
 
   void _scrollToBottom(Duration _) {
-    _logController.animateTo(
-      _logController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
+    if (_logController.hasClients) {
+      _logController.animateTo(
+        _logController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   Widget _buildTeamPanel(String title, List<Character> members) {
@@ -114,94 +77,69 @@ class _DelveScreenState extends State<DelveScreen> {
     );
   }
 
-  void _resetGame() async {
-    await _game.partyService.clearSavedParty();
-    await _game.partyService.clearDelveState();
-    setState(() {
-      _game = DungeonService(
-        onStateUpdate: (msg) => setState(() => {}),
-        onGameOver: () => setState(() {}),
-      );
-      _loadPartyFuture = _game.loadDungeonParty();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    final party = ref.watch(partyProvider);
+
     return FutureBuilder<void>(
-      future: _loadPartyFuture,
+      future: _loadProgressFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error loading party: ${snapshot.error}'));
-        } else {
-          return Column(
-            children: [
-              // Controls
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+        }
+
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        return Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (party.any((c) => c.isAlive))
+                  ElevatedButton(
+                    child: Text(
+                      _game.enemies.any((c) => c.isAlive)
+                          ? "Fight"
+                          : "Delve ${_game.depth}",
+                    ),
+                    onPressed: _delve,
+                  ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
                 children: [
-                  _game.party.any((c) => c.isAlive)
-                      ? ElevatedButton(
-                        child: Text(getDelveText()),
-                        onPressed:
-                            () => setState(() {
-                              _game.enemies.any((c) => c.isAlive)
-                                  ? null
-                                  : _delve();
-                            }),
-                      )
-                      : Container(),
+                  Text(
+                    'Depth: ${_game.depth}',
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildTeamPanel('Party', party),
+                      if (_game.gameStarted)
+                        _buildTeamPanel('Enemies', _game.enemies),
+                    ],
+                  ),
                 ],
               ),
-
-              // Game Info
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Text(
-                      'Depth: ${_game.depth}',
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildTeamPanel('Party', _game.party),
-                        if (_game.gameStarted)
-                          _buildTeamPanel('Enemies', _game.enemies),
-                      ],
-                    ),
-                  ],
-                ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                controller: _logController,
+                itemCount: _visibleStates.length,
+                itemBuilder:
+                    (context, i) =>
+                        ListTile(title: _visibleStates[i].logMessage),
               ),
-
-              // Battle Log
-              Expanded(
-                child: ListView.builder(
-                  controller: _logController,
-                  itemCount: _visibleStates.length,
-                  itemBuilder:
-                      (context, i) =>
-                          ListTile(title: _visibleStates[i].logMessage),
-                ),
-              ),
-            ],
-          );
-        }
+            ),
+          ],
+        );
       },
     );
-  }
-
-  String getDelveText() {
-    if (!_game.gameStarted) {
-      return "Delve";
-    }
-    if (!_game.enemies.any((c) => c.isAlive)) {
-      return "Delve Deeper";
-    }
-    return "Fight";
   }
 }

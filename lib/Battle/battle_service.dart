@@ -123,6 +123,9 @@ class BattleContext {
   bool get battleActive => partyAlive && enemiesAlive;
   bool get partyAlive => allies.any((c) => c.isAlive);
   bool get enemiesAlive => enemies.any((c) => c.isAlive);
+
+  List<Character> get currentParty => List.unmodifiable(allies);
+  List<Character> get currentEnemies => List.unmodifiable(enemies);
 }
 
 class BattleState {

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:delve/Character/character.dart';
 import 'package:delve/Dungeon/dungeon_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PartyService {
   static const _partyKey = 'saved_party';
@@ -61,5 +62,26 @@ class PartyService {
       print('Error loading delve state: $e');
       return null;
     }
+  }
+}
+
+class PartyNotifier extends StateNotifier<List<Character>> {
+  final PartyService partyService;
+
+  PartyNotifier(this.partyService) : super([]);
+
+  void setParty(List<Character> party) => state = party;
+
+  void healParty(int amount) {
+    state = [
+      for (final c in state)
+        c.copyWith(
+          currentHealth: (c.currentHealth + amount).clamp(0, c.maxHealth),
+        ),
+    ];
+  }
+
+  void updateCharacter(Character updated) {
+    state = [for (final c in state) c.name == updated.name ? updated : c];
   }
 }

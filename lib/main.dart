@@ -1,12 +1,14 @@
 // main.dart
-import 'package:delve/Party/party_service.dart';
 import 'package:delve/Screens/delveScreen.dart';
 import 'package:delve/Screens/heroScreen.dart';
 import 'package:delve/Screens/itemScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttericon/rpg_awesome_icons.dart';
 
-void main() => runApp(DungeonApp());
+void main() {
+  runApp(ProviderScope(child: DungeonApp()));
+}
 
 class DungeonApp extends StatelessWidget {
   const DungeonApp({super.key});

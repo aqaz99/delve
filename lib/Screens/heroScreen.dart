@@ -1,136 +1,57 @@
-// heroScreen.dart
 import 'package:delve/Character/character.dart';
-import 'package:delve/Party/party_service.dart';
+import 'package:delve/Character/character_list.dart';
+import 'package:delve/providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:math';
 
-class HeroScreen extends StatefulWidget {
-  @override
-  _HeroScreenState createState() => _HeroScreenState();
-}
-
-class _HeroScreenState extends State<HeroScreen> {
-  final PartyService _partyService = PartyService();
-  late Future<List<Character>> _partyFuture;
-
-  Future<void> _saveDebugParty() async {
-    final party = await _partyFuture;
-    await _partyService.saveParty(party);
-    _refreshParty();
-  }
-
-  Future<void> _clearSavedData() async {
-    await _partyService.clearSavedParty();
-    await _partyService.clearDelveState();
-    _refreshParty();
-  }
+class HeroScreen extends ConsumerWidget {
+  const HeroScreen({super.key});
 
   @override
-  void initState() {
-    super.initState();
-    _partyFuture = _partyService.loadParty();
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final party = ref.watch(partyProvider);
+    List<Character> _generateNewParty() {
+      final random = Random();
+      final shuffled = List<Character>.from(allCharacters)..shuffle(random);
+      return shuffled.take(3).toList();
+    }
 
-  void _showCharacterDetails(Character character) {
-    showModalBottomSheet(
-      context: context,
-      builder:
-          (context) => Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  character.name,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Health: ${character.currentHealth}/${character.maxHealth}',
-                ),
-                Text('Speed: ${character.speed}'),
-                const SizedBox(height: 10),
-                const Text('Abilities:'),
-                ...character.abilities.map(
-                  (a) => Text('- ${a.name}: ${a.effect}'),
-                ),
-              ],
-            ),
-          ),
-    );
-  }
-
-  Future<void> _refreshParty() async {
-    setState(() {
-      _partyFuture = _partyService.loadParty();
-    });
-  }
-
-  Future<void> _healParty() async {
-    final party = await _partyFuture;
-    final healedParty =
-        party.map((character) {
-          final newHealth = (character.currentHealth + 5).clamp(
-            0,
-            character.maxHealth,
-          );
-          return character.copyWith(currentHealth: newHealth);
-        }).toList();
-
-    await _partyService.saveParty(healedParty);
-    _refreshParty();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Party Members'),
         actions: [
           IconButton(
             icon: const Icon(Icons.healing),
-            onPressed: _healParty,
+            onPressed: () {
+              ref.read(partyProvider.notifier).healParty(5);
+            },
             tooltip: 'Heal Party (+5 HP)',
           ),
           IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _saveDebugParty,
-            tooltip: 'Save Default Party',
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: _clearSavedData,
-            tooltip: 'Clear Saved Data',
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _refreshParty,
-            tooltip: 'Reload Data',
+            icon: const Icon(Icons.group_add),
+            onPressed: () async {
+              final newParty = _generateNewParty();
+              ref.read(partyProvider.notifier).setParty(newParty);
+              final partyService = ref.read(partyServiceProvider);
+              await partyService.saveParty(newParty);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('New party generated!')),
+              );
+            },
+            tooltip: 'Generate New Party',
           ),
         ],
       ),
-      body: FutureBuilder<List<Character>>(
-        future: _partyFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final party = snapshot.data ?? [];
-
-          return ListView.builder(
-            itemCount: party.length,
-            itemBuilder: (context, index) {
-              final character = party[index];
-              return ListTile(
-                title: Text(character.name),
-                subtitle: Text(
-                  'Health: ${character.currentHealth}/${character.maxHealth}',
-                ),
-                trailing: Text('Delving: ${character.currentlyDelving}'),
-                onTap: () => _showCharacterDetails(character),
-              );
-            },
+      body: ListView.builder(
+        itemCount: party.length,
+        itemBuilder: (context, index) {
+          final character = party[index];
+          return ListTile(
+            title: Text(character.name),
+            subtitle: Text(
+              'Health: ${character.currentHealth}/${character.maxHealth}',
+            ),
           );
         },
       ),

@@ -1,38 +1,45 @@
-// dungeon_service.dart
 import 'package:delve/Battle/battle_service.dart';
 import 'package:delve/Character/character.dart';
 import 'package:delve/Party/party_service.dart';
+import 'package:delve/providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Add levels / checkpoints / fireside recovery
 class DungeonService {
-  List<Character> party = [];
+  final PartyService partyService;
+  final Function(BattleState) onStateUpdate;
+  final Function() onGameOver;
+
   List<Character> enemies = [];
   int currentRound = 0;
   int depth = 1;
-  final Function(BattleState) onStateUpdate;
   bool gameStarted = false;
   bool defeatedDepth = false;
-  final Function() onGameOver;
-  final PartyService partyService = PartyService();
 
   late BattleService _battle;
 
-  DungeonService({required this.onStateUpdate, required this.onGameOver});
+  DungeonService({
+    required this.partyService,
+    required this.onStateUpdate,
+    required this.onGameOver,
+  });
 
-  Future<void> loadProgress() async {
+  Future<void> loadProgress(WidgetRef ref) async {
     final savedState = await partyService.loadDelveState();
     if (savedState != null) {
       depth = savedState.depth;
       currentRound = savedState.currentRound;
       defeatedDepth = savedState.defeatedDepth;
       enemies = savedState.enemies;
-      for (var element in savedState.enemies) {
-        print("${element.name} - ${element.currentHealth}");
-      }
+
+      ref.read(enemyProvider.notifier).state = List<Character>.from(enemies);
+
+      final loadedParty = await partyService.loadParty();
+      ref.read(partyProvider.notifier).setParty(loadedParty);
     }
   }
 
-  Future<void> saveProgress() async {
+  Future<void> saveProgress(WidgetRef ref) async {
+    final currentParty = ref.read(partyProvider);
     await partyService.saveDelveState(
       DelveState(
         depth: depth,
@@ -41,11 +48,12 @@ class DungeonService {
         enemies: enemies,
       ),
     );
-    await partyService.saveParty(party);
+    await partyService.saveParty(currentParty);
   }
 
-  Future<List<Character>> loadDungeonParty() async {
-    party = await partyService.loadParty();
+  Future<List<Character>> loadDungeonParty(WidgetRef ref) async {
+    final party = await partyService.loadParty();
+    ref.read(partyProvider.notifier).setParty(party);
     return party;
   }
 
@@ -62,38 +70,47 @@ class DungeonService {
     );
   }
 
-  void goDeeper() {
+  Future<void> goDeeper(WidgetRef ref) async {
     depth++;
     currentRound = 0;
-    generateEncounter();
-    saveProgress();
+    generateEncounter(ref);
+    await saveProgress(ref);
   }
 
-  void setAllyCharactersActivelyDelving() {
-    for (var character in party) {
-      character.currentlyDelving = true;
-    }
+  void setAllyCharactersActivelyDelving(WidgetRef ref) {
+    final party = ref.read(partyProvider);
+    final updatedParty =
+        party.map((c) => c.copyWith(currentlyDelving: true)).toList();
+    ref.read(partyProvider.notifier).setParty(updatedParty);
   }
 
-  void generateEncounter() {
+  void generateEncounter(WidgetRef ref) {
     gameStarted = true;
     enemies = generateEnemies(depth);
-    setAllyCharactersActivelyDelving();
+    setAllyCharactersActivelyDelving(ref);
   }
 
-  Future<void> progressRound() async {
+  Future<void> progressRound(WidgetRef ref) async {
+    final currentParty = ref.read(partyProvider);
+
     while (enemies.any((c) => c.isAlive)) {
       currentRound++;
 
-      var ctx = BattleContext(List.from(party), enemies);
+      var ctx = BattleContext(List.from(currentParty), enemies);
       _battle = BattleService(
         context: ctx,
         onState: (state) => onStateUpdate(state),
       );
 
       await _battle.runBattleRound(currentRound);
-      await saveProgress();
-      partyService.saveParty(party);
+
+      // Update with current battle state
+      ref.read(partyProvider.notifier).setParty(ctx.currentParty);
+      ref.read(enemyProvider.notifier).state = ctx.currentEnemies;
+      enemies = ctx.currentEnemies; // Keep local state in sync
+
+      await saveProgress(ref);
+
       if (!ctx.partyAlive) {
         onGameOver();
         return;

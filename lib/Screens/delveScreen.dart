@@ -10,7 +10,6 @@ class DelveScreen extends StatefulWidget {
 }
 
 class _DelveScreenState extends State<DelveScreen> with WidgetsBindingObserver {
-  // Add to existing state
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -78,7 +77,7 @@ class _DelveScreenState extends State<DelveScreen> with WidgetsBindingObserver {
     if (!_game.enemies.any((c) => c.isAlive)) {
       _game.goDeeper();
     }
-    // _visibleStates.clear();
+
     await _game.progressRound();
     _scrollToBottom(Duration.zero);
   }

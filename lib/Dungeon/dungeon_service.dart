@@ -66,7 +66,7 @@ class DungeonService {
       );
 
       await _battle.runBattleRound(currentRound);
-
+      _partyService.saveParty(party);
       if (!ctx.partyAlive) {
         onGameOver();
         return;

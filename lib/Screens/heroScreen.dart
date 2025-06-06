@@ -1,3 +1,4 @@
+// heroScreen.dart
 import 'package:delve/Character/character.dart';
 import 'package:delve/Party/party_service.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,14 @@ class HeroScreen extends StatefulWidget {
   _HeroScreenState createState() => _HeroScreenState();
 }
 
-class _HeroScreenState extends State<HeroScreen> {
+class _HeroScreenState extends State<HeroScreen> with WidgetsBindingObserver {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshParty();
+    }
+  }
+
   final PartyService _partyService = PartyService();
   late Future<List<Character>> _partyFuture;
 
@@ -25,7 +33,14 @@ class _HeroScreenState extends State<HeroScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _partyFuture = _partyService.loadParty();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   void _showCharacterDetails(Character character) {
@@ -102,10 +117,10 @@ class _HeroScreenState extends State<HeroScreen> {
               final character = party[index];
               return ListTile(
                 title: Text(character.name),
-                subtitle: Text('Level/Maxhealth ${character.maxHealth}'),
-                trailing: Text(
-                  'HP: ${character.currentHealth} - ${character.currentlyDelving}',
+                subtitle: Text(
+                  'Health: ${character.currentHealth}/${character.maxHealth}',
                 ),
+                trailing: Text('Delving: ${character.currentlyDelving}'),
                 onTap: () => _showCharacterDetails(character),
               );
             },

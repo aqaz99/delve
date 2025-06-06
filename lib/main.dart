@@ -13,6 +13,7 @@ class DungeonApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(title: const Text('Delve - Auto Battler')),
         body: DungeonGame(),

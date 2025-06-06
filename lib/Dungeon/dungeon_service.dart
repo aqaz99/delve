@@ -26,6 +26,9 @@ class DungeonService {
       currentRound = savedState.currentRound;
       defeatedDepth = savedState.defeatedDepth;
       enemies = savedState.enemies;
+      for (var element in savedState.enemies) {
+        print("${element.name} - ${element.currentHealth}");
+      }
     }
   }
 

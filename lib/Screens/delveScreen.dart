@@ -1,7 +1,6 @@
 import 'package:delve/Battle/battle_service.dart';
 import 'package:delve/Dungeon/dungeon_service.dart';
 import 'package:delve/Character/character.dart';
-import 'package:delve/Party/party_service.dart';
 import 'package:delve/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,6 +57,7 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
 
   void _resetDelveState() async {
     await _game.clearDungeonRun(ref);
+    _visibleStates.clear();
     ref.read(partyProvider.notifier).healParty(100);
     _scrollToBottom(Duration.zero);
   }
@@ -106,17 +106,17 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
               children: [
                 if (party.any((c) => c.isAlive))
                   ElevatedButton(
+                    onPressed: _delve,
                     child: Text(
                       _game.enemies.any((c) => c.isAlive)
                           ? "Fight"
                           : "Delve ${_game.depth}",
                     ),
-                    onPressed: _delve,
                   ),
                 if (!party.any((c) => c.isAlive))
                   ElevatedButton(
-                    child: Text("Reset"),
                     onPressed: _resetDelveState,
+                    child: Text("Reset"),
                   ),
               ],
             ),

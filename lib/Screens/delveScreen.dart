@@ -19,14 +19,17 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
   bool _isProcessing = false;
   final _logController = ScrollController();
 
-  // IN initState - USE PROVIDER FOR DUNGEON SERVICE
   @override
   void initState() {
     super.initState();
-    _game = ref.read(
-      dungeonServiceProvider,
-    ); // Get from provider instead of manual creation
-    _loadProgressFuture = _game.loadProgress(ref); // Add ref parameter
+    _game = DungeonService(
+      partyService: ref.read(partyServiceProvider),
+      onStateUpdate: _handleNewState,
+      onGameOver: () {
+        print("Game over");
+      },
+    );
+    _loadProgressFuture = _game.loadProgress(ref);
   }
 
   void _handleNewState(BattleState state) {
@@ -53,14 +56,18 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
     _scrollToBottom(Duration.zero);
   }
 
+  void _resetDelveState() async {
+    await _game.clearDungeonRun(ref);
+    ref.read(partyProvider.notifier).healParty(100);
+    _scrollToBottom(Duration.zero);
+  }
+
   void _scrollToBottom(Duration _) {
-    if (_logController.hasClients) {
-      _logController.animateTo(
-        _logController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
+    _logController.animateTo(
+      _logController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   Widget _buildTeamPanel(String title, List<Character> members) {
@@ -105,6 +112,11 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
                           : "Delve ${_game.depth}",
                     ),
                     onPressed: _delve,
+                  ),
+                if (!party.any((c) => c.isAlive))
+                  ElevatedButton(
+                    child: Text("Reset"),
+                    onPressed: _resetDelveState,
                   ),
               ],
             ),

@@ -77,6 +77,13 @@ class DungeonService {
     await saveProgress(ref);
   }
 
+  Future<void> clearDungeonRun(WidgetRef ref) async {
+    depth = 1;
+    currentRound = 0;
+    enemies = generateEnemies(depth);
+    await saveProgress(ref);
+  }
+
   void setAllyCharactersActivelyDelving(WidgetRef ref) {
     final party = ref.read(partyProvider);
     final updatedParty =

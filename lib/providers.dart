@@ -13,8 +13,8 @@ final partyProvider = StateNotifierProvider<PartyNotifier, List<Character>>((
 final dungeonServiceProvider = Provider<DungeonService>((ref) {
   return DungeonService(
     partyService: ref.read(partyServiceProvider),
-    onStateUpdate: (state) {}, // Implement in screen
-    onGameOver: () {}, // Implement in screen
+    onStateUpdate: (state) {},
+    onGameOver: () {},
   );
 });
 

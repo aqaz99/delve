@@ -33,6 +33,7 @@ class BattleService {
     onState(state);
     for (final character in participants) {
       await _processTurn(character);
+      await Future.delayed(Duration(milliseconds: 300));
     }
   }
 

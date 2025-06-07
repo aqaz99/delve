@@ -32,6 +32,7 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
   }
 
   void _handleNewState(BattleState state) {
+    ref.read(partyProvider.notifier).setParty(state.partySnapshot);
     _stateBuffer.add(state);
     if (!_isProcessing) _processStates();
   }
@@ -42,7 +43,6 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
       final state = _stateBuffer.removeAt(0);
       setState(() => _visibleStates.add(state));
       WidgetsBinding.instance.addPostFrameCallback(_scrollToBottom);
-      await Future.delayed(const Duration(milliseconds: 100));
     }
     _isProcessing = false;
   }
@@ -58,6 +58,7 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
   void _resetDelveState() async {
     await _game.clearDungeonRun(ref);
     _visibleStates.clear();
+    _stateBuffer.clear();
     ref.read(partyProvider.notifier).healParty(100);
     _scrollToBottom(Duration.zero);
   }
@@ -65,7 +66,7 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
   void _scrollToBottom(Duration _) {
     _logController.animateTo(
       _logController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 250),
       curve: Curves.easeOut,
     );
   }
@@ -87,7 +88,6 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
   @override
   Widget build(BuildContext context) {
     final party = ref.watch(partyProvider);
-
     return FutureBuilder<void>(
       future: _loadProgressFuture,
       builder: (context, snapshot) {

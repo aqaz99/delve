@@ -81,9 +81,9 @@ class BattleService {
 
   void useAbility(Character caster, Ability ability) {
     // Determine actual allies/enemies based on caster team
-    final isAlly = _context.allies.contains(caster);
-    final casterAllies = isAlly ? _context.allies : _context.enemies;
-    final casterEnemies = isAlly ? _context.enemies : _context.allies;
+    final isCasterAlly = _context.allies.contains(caster);
+    final casterAllies = isCasterAlly ? _context.allies : _context.enemies;
+    final casterEnemies = isCasterAlly ? _context.enemies : _context.allies;
 
     final targets =
         ability.targetResolver
@@ -99,9 +99,23 @@ class BattleService {
       return;
     }
 
+    var isTargetAlly = false;
+
+    for (var element in targets) {
+      if (casterAllies.contains(element)) {
+        isTargetAlly = true;
+        break;
+      }
+    }
+
     ability.effect.apply(caster, targets, ability.scale);
     final state = BattleState(
-      logMessage: ability.abilityUseText(caster, targets, isAlly),
+      logMessage: ability.abilityUseText(
+        caster,
+        targets,
+        isCasterAlly,
+        isTargetAlly,
+      ),
       partySnapshot: _deepCopy(_context.allies),
       enemiesSnapshot: _deepCopy(_context.enemies),
     );

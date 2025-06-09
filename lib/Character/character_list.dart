@@ -4,14 +4,14 @@ import 'package:delve/Character/character.dart';
 
 final characterWarrior = Character(
   name: 'Warrior',
-  maxHealth: 30,
+  maxHealth: 40,
   speed: 5,
   abilities: [abilityKnightsSwing],
   currentlyDelving: false,
 );
 final characterMage = Character(
   name: 'Mage',
-  maxHealth: 25,
+  maxHealth: 30,
   speed: 4,
   abilities: [abilityFireball],
   currentlyDelving: false,
@@ -19,7 +19,7 @@ final characterMage = Character(
 
 final characterCleric = Character(
   name: 'Cleric',
-  maxHealth: 25,
+  maxHealth: 35,
   speed: 3,
   abilities: [abilityLesserHeal],
   currentlyDelving: false,
@@ -27,7 +27,7 @@ final characterCleric = Character(
 
 final characterRogue = Character(
   name: 'Rogue',
-  maxHealth: 20,
+  maxHealth: 25,
   speed: 6,
   abilities: [abilityBackstab],
   currentlyDelving: false,
@@ -35,7 +35,7 @@ final characterRogue = Character(
 
 final characterWarlock = Character(
   name: 'Warlock',
-  maxHealth: 22,
+  maxHealth: 28,
   speed: 4,
   abilities: [abilityReap],
   currentlyDelving: false,

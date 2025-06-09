@@ -26,21 +26,22 @@ class Ability {
   RichText abilityUseText(
     Character caster,
     List<Character> targets,
-    bool isAlly,
+    bool isCasterAlly,
+    bool isTargetAlly,
   ) {
     return RichText(
       text: TextSpan(
         children: [
           TextSpan(
             text: "${caster.name} ",
-            style: TextStyle(color: isAlly ? Colors.blue : Colors.red),
+            style: TextStyle(color: isCasterAlly ? Colors.blue : Colors.red),
           ),
           TextSpan(text: "uses ", style: TextStyle(color: Colors.black)),
           TextSpan(text: "$name ", style: TextStyle(color: Colors.blueGrey)),
           TextSpan(text: "on ", style: TextStyle(color: Colors.black)),
           TextSpan(
             text: "${targets.map((t) => t.name).join(', ')} ",
-            style: TextStyle(color: isAlly ? Colors.red : Colors.blue),
+            style: TextStyle(color: isTargetAlly ? Colors.blue : Colors.red),
           ),
           TextSpan(text: "for ", style: TextStyle(color: Colors.black)),
           TextSpan(

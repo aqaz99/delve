@@ -35,9 +35,6 @@ class HeroScreen extends ConsumerWidget {
               ref.read(partyProvider.notifier).setParty(newParty);
               final partyService = ref.read(partyServiceProvider);
               await partyService.saveParty(newParty);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('New party generated!')),
-              );
             },
             tooltip: 'Generate New Party',
           ),

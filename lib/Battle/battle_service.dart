@@ -33,7 +33,7 @@ class BattleService {
     onState(state);
     for (final character in participants) {
       await _processTurn(character);
-      await Future.delayed(Duration(milliseconds: 300));
+      await Future.delayed(Duration(milliseconds: 50));
     }
   }
 
@@ -118,6 +118,7 @@ class BattleService {
       ),
       partySnapshot: _deepCopy(_context.allies),
       enemiesSnapshot: _deepCopy(_context.enemies),
+      battleOver: !_context.enemies.any((c) => c.isAlive),
     );
 
     onState(state);
@@ -148,11 +149,13 @@ class BattleState {
   final List<Character> partySnapshot;
   final List<Character> enemiesSnapshot;
   final bool isSeparator;
+  bool battleOver;
 
   BattleState({
     required this.logMessage,
     required this.partySnapshot,
     required this.enemiesSnapshot,
     this.isSeparator = false,
+    this.battleOver = false,
   });
 }

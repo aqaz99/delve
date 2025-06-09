@@ -34,22 +34,21 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
   void _handleNewState(BattleState state) {
     ref.read(partyProvider.notifier).setParty(state.partySnapshot);
     _stateBuffer.add(state);
-    if (!_isProcessing) _processStates();
+    _processState();
   }
 
-  void _processStates() async {
-    _isProcessing = true;
-    while (_stateBuffer.isNotEmpty) {
-      final state = _stateBuffer.removeAt(0);
-      setState(() => _visibleStates.add(state));
-      WidgetsBinding.instance.addPostFrameCallback(_scrollToBottom);
-    }
-    _isProcessing = false;
+  void _processState() async {
+    final state = _stateBuffer.removeAt(0);
+    setState(() => _visibleStates.add(state));
+    WidgetsBinding.instance.addPostFrameCallback(_scrollToBottom);
+    _isProcessing = !state.battleOver;
   }
 
   void _delve() async {
     if (!_game.gameStarted) _game.generateEncounter(ref);
     if (!_game.enemies.any((c) => c.isAlive)) _game.goDeeper(ref);
+
+    print(_game.showEvent);
 
     await _game.progressRound(ref);
     _scrollToBottom(Duration.zero);
@@ -61,14 +60,17 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
     _stateBuffer.clear();
     ref.read(partyProvider.notifier).healParty(100);
     _scrollToBottom(Duration.zero);
+    _isProcessing = false;
   }
 
   void _scrollToBottom(Duration _) {
-    _logController.animateTo(
-      _logController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOut,
-    );
+    if (_logController.hasClients) {
+      _logController.animateTo(
+        _logController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   Widget _buildTeamPanel(String title, List<Character> members) {
@@ -80,6 +82,40 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
             '${c.name}: ${c.currentHealth} HP',
             style: TextStyle(color: c.isAlive ? Colors.black : Colors.red),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEventOptions(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Special Event at Depth ${_game.depth}!',
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: () {
+            _game.handleEventChoice(ref, 'rest');
+            _game.saveProgress(ref);
+          },
+          child: const Text('Rest (+10 HP to All)'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            _game.handleEventChoice(ref, 'loot');
+            _game.saveProgress(ref);
+          },
+          child: const Text('Search for Loot'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            _game.handleEventChoice(ref, 'continue');
+            _game.saveProgress(ref);
+          },
+          child: const Text('Continue Immediately'),
         ),
       ],
     );
@@ -106,12 +142,8 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
               children: [
                 if (party.any((c) => c.isAlive))
                   ElevatedButton(
-                    onPressed: _delve,
-                    child: Text(
-                      _game.enemies.any((c) => c.isAlive)
-                          ? "Fight"
-                          : "Delve ${_game.depth}",
-                    ),
+                    onPressed: _isProcessing ? null : _delve,
+                    child: Text("Delve"),
                   ),
                 if (!party.any((c) => c.isAlive))
                   ElevatedButton(
@@ -133,7 +165,7 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _buildTeamPanel('Party', party),
-                      if (_game.gameStarted)
+                      if (_game.gameStarted && !_game.showEvent)
                         _buildTeamPanel('Enemies', _game.enemies),
                     ],
                   ),
@@ -141,13 +173,16 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
               ),
             ),
             Expanded(
-              child: ListView.builder(
-                controller: _logController,
-                itemCount: _visibleStates.length,
-                itemBuilder:
-                    (context, i) =>
-                        ListTile(title: _visibleStates[i].logMessage),
-              ),
+              child:
+                  _game.showEvent
+                      ? _buildEventOptions(context)
+                      : ListView.builder(
+                        controller: _logController,
+                        itemCount: _visibleStates.length,
+                        itemBuilder:
+                            (context, i) =>
+                                ListTile(title: _visibleStates[i].logMessage),
+                      ),
             ),
           ],
         );

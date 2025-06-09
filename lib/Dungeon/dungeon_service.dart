@@ -8,10 +8,12 @@ class DungeonService {
   final PartyService partyService;
   final Function(BattleState) onStateUpdate;
   final Function() onGameOver;
+  bool showEvent = false;
 
   List<Character> enemies = [];
   int currentRound = 0;
   int depth = 1;
+  bool roundStarted = false;
   bool gameStarted = false;
   bool defeatedDepth = false;
 
@@ -72,9 +74,31 @@ class DungeonService {
 
   Future<void> goDeeper(WidgetRef ref) async {
     depth++;
+
+    // Every 3 depth levels, have an event for the player
+    if (depth % 3 == 0) {
+      showEvent = true;
+    } else {
+      showEvent = false;
+    }
+
     currentRound = 0;
     generateEncounter(ref);
     await saveProgress(ref);
+  }
+
+  void handleEventChoice(WidgetRef ref, String choice) {
+    final partyNotifier = ref.read(partyProvider.notifier);
+    switch (choice) {
+      case 'rest':
+        partyNotifier.healParty(10);
+        break;
+      case 'loot':
+        break;
+      case 'continue':
+        break;
+    }
+    showEvent = false;
   }
 
   Future<void> clearDungeonRun(WidgetRef ref) async {
@@ -93,11 +117,12 @@ class DungeonService {
 
   void generateEncounter(WidgetRef ref) {
     gameStarted = true;
-    enemies = generateEnemies(depth);
+    enemies = showEvent ? [] : generateEnemies(depth);
     setAllyCharactersActivelyDelving(ref);
   }
 
   Future<void> progressRound(WidgetRef ref) async {
+    roundStarted = true;
     final currentParty = ref.read(partyProvider);
 
     while (enemies.any((c) => c.isAlive)) {
@@ -111,12 +136,12 @@ class DungeonService {
 
       await _battle.runBattleRound(currentRound);
 
-      // Update with current battle state
       ref.read(partyProvider.notifier).setParty(ctx.currentParty);
       ref.read(enemyProvider.notifier).state = ctx.currentEnemies;
-      enemies = ctx.currentEnemies; // Keep local state in sync
+      enemies = ctx.currentEnemies;
 
       await saveProgress(ref);
+      roundStarted = false;
 
       if (!ctx.partyAlive) {
         onGameOver();

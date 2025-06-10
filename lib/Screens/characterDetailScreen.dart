@@ -126,14 +126,13 @@ class CharacterDetailScreen extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center, // Center vertically
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             'Level ${character.level}',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(width: 14),
-          // Bar and XP as a flexible row
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,

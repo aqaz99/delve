@@ -11,10 +11,18 @@ class Character {
   int speed;
   List<Ability> abilities;
   bool currentlyDelving;
+
+  // Leveling and EXP
+  static const double _xpExponent = 1.5;
+  static const int _baseXP = 100;
+  static const double _healthMultiplier = 1.1;
   int level = 1;
-  int currentXP = 150;
-  int nextLevelXP = 300;
+  int currentXP = 0;
   int totalKills = 0;
+  int get expValue => (10 * pow(level, 1.2)).round();
+
+  int get nextLevelXP => (_baseXP * pow(level, _xpExponent)).round();
+  bool get isAlive => currentHealth > 0;
 
   Character({
     required this.name,
@@ -76,7 +84,23 @@ class Character {
     );
   }
 
-  bool get isAlive => currentHealth > 0;
+  void gainXP(int xpEarned) {
+    currentXP += xpEarned;
+
+    while (currentXP >= nextLevelXP) {
+      // Calculate remaining XP after level up
+      currentXP -= nextLevelXP;
+      _levelUp();
+    }
+  }
+
+  void _levelUp() {
+    level++;
+
+    // stat increases
+    maxHealth = (maxHealth * _healthMultiplier).ceil();
+    currentHealth = maxHealth;
+  }
 }
 
 List<Character> getThreeRandomCharacters() {

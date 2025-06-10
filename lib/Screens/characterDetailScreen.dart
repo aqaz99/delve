@@ -36,7 +36,6 @@ class CharacterDetailScreen extends ConsumerWidget {
                   ),
                   _buildStatRow('Speed', character.speed.toString()),
                   _buildStatRow('Total Kills', character.totalKills.toString()),
-
                   _buildXPRow(),
                   const SizedBox(height: 20),
                   const Text('Equipment Slots', style: TextStyle(fontSize: 18)),

@@ -1,5 +1,6 @@
 import 'package:delve/Character/character.dart';
 import 'package:delve/Character/character_list.dart';
+import 'package:delve/Screens/characterDetailScreen.dart';
 import 'package:delve/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,6 +50,15 @@ class HeroScreen extends ConsumerWidget {
             subtitle: Text(
               'Health: ${character.currentHealth}/${character.maxHealth}',
             ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => CharacterDetailScreen(character: character),
+                ),
+              );
+            },
           );
         },
       ),

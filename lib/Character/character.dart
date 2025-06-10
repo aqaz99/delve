@@ -11,6 +11,10 @@ class Character {
   int speed;
   List<Ability> abilities;
   bool currentlyDelving;
+  int level = 1;
+  int currentXP = 150;
+  int nextLevelXP = 300;
+  int totalKills = 0;
 
   Character({
     required this.name,

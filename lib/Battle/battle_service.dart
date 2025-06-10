@@ -109,6 +109,15 @@ class BattleService {
     }
 
     ability.effect.apply(caster, targets, ability.scale);
+    if (!_context.enemies.any((c) => c.isAlive)) {
+      for (var ally in _context.allies) {
+        if (ally.isAlive) {
+          for (var enemy in _context.enemies) {
+            ally.gainXP(enemy.expValue);
+          }
+        }
+      }
+    }
     final state = BattleState(
       logMessage: ability.abilityUseText(
         caster,

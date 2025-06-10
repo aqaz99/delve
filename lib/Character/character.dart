@@ -19,7 +19,7 @@ class Character {
   int level = 1;
   int currentXP = 0;
   int totalKills = 0;
-  int get expValue => (10 * pow(level, 1.2)).round();
+  int expValue = 0;
 
   int get nextLevelXP => (_baseXP * pow(level, _xpExponent)).round();
   bool get isAlive => currentHealth > 0;

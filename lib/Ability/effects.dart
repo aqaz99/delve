@@ -12,6 +12,7 @@ class DamageEffect implements AbilityEffect {
     for (final target in targets) {
       if ((target.currentHealth - scale) <= 0) {
         target.currentHealth = 0;
+        caster.totalKills += 1;
       } else {
         target.currentHealth -= scale;
       }

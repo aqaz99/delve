@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:delve/Battle/battle_service.dart';
 import 'package:delve/Character/character.dart';
+import 'package:delve/Character/enemyTemplate.dart';
 import 'package:delve/Party/party_service.dart';
 import 'package:delve/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -60,16 +63,35 @@ class DungeonService {
   }
 
   List<Character> generateEnemies(int depth) {
-    return List.generate(
-      3,
-      (i) => Character(
-        name: 'Goblin ${i + 1}',
-        maxHealth: 15 + depth * 3,
-        speed: 3 + depth,
-        abilities: [],
-        currentlyDelving: true,
-      ),
-    );
+    final random = Random();
+    final enemyCount = 3;
+    final List<Character> enemies = [];
+
+    for (int i = 0; i < enemyCount; i++) {
+      final template = enemyTemplates[random.nextInt(enemyTemplates.length)];
+      final int level = depth; // Level equals dungeon depth
+
+      // Scale stats and exp
+      final int maxHealth = (template.baseHealth * pow(1.2, level - 1)).round();
+      final int speed = (template.baseSpeed * pow(1.1, level - 1)).round();
+      final int expValue = (template.baseExp * pow(1.3, level - 1)).round();
+
+      enemies.add(
+        Character(
+            name: '${template.name} ${i + 1}',
+            maxHealth: maxHealth,
+            currentHealth: maxHealth,
+            speed: speed,
+            abilities: List.from(template.abilities),
+            currentlyDelving: true,
+            // Add these fields to your Character class if not present:
+            // int level, int expValue
+          )
+          ..level = level
+          ..expValue = expValue,
+      );
+    }
+    return enemies;
   }
 
   Future<void> goDeeper(WidgetRef ref) async {

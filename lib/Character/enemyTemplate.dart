@@ -26,9 +26,9 @@ const enemyTemplates = [
   ),
   EnemyTemplate(
     name: 'Orc',
-    baseHealth: 25,
+    baseHealth: 20,
     baseSpeed: 2,
-    baseExp: 100,
+    baseExp: 75,
     abilities: [],
   ),
   EnemyTemplate(

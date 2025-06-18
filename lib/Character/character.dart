@@ -14,7 +14,7 @@ class Character {
 
   // Leveling and EXP
   static const double _xpExponent = 1.5;
-  static const int _baseXP = 100;
+  static const int _baseXP = 150;
   static const double _healthMultiplier = 1.1;
   int level = 1;
   int currentXP = 0;

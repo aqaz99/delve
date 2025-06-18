@@ -30,6 +30,9 @@ class Character {
     required this.speed,
     required this.abilities,
     required this.currentlyDelving,
+    required this.level,
+    required this.currentXP,
+    required this.totalKills,
     int? currentHealth,
   }) : currentHealth = currentHealth ?? maxHealth;
 
@@ -39,7 +42,8 @@ class Character {
       currentHealth = other.currentHealth,
       speed = other.speed,
       currentlyDelving = other.currentlyDelving,
-      abilities = List.from(other.abilities);
+      abilities = List.from(other.abilities),
+      level = other.level;
 
   Character copyWith({
     String? name,
@@ -48,6 +52,9 @@ class Character {
     int? speed,
     List<Ability>? abilities,
     bool? currentlyDelving,
+    int? level,
+    int? currentXP,
+    int? totalKills,
   }) {
     return Character(
       name: name ?? this.name,
@@ -56,6 +63,9 @@ class Character {
       speed: speed ?? this.speed,
       abilities: abilities ?? List.from(this.abilities),
       currentlyDelving: currentlyDelving ?? this.currentlyDelving,
+      level: level ?? this.level,
+      currentXP: currentXP ?? this.currentXP,
+      totalKills: totalKills ?? this.totalKills,
     );
   }
 
@@ -67,6 +77,9 @@ class Character {
       'speed': speed,
       'abilities': abilities.map((a) => a.name).toList(),
       'currentlyDelving': currentlyDelving,
+      'level': level,
+      'currentXP': currentXP,
+      'totalKills': totalKills,
     };
   }
 
@@ -81,6 +94,9 @@ class Character {
               .map((name) => getAbilityByName(name))
               .toList(),
       currentlyDelving: json['currentlyDelving'],
+      level: json['level'],
+      currentXP: json['level'],
+      totalKills: json['totalKills'],
     );
   }
 

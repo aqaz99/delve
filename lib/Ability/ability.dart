@@ -4,7 +4,6 @@ import 'package:delve/Ability/target_resolvers.dart';
 import 'package:delve/Character/character.dart';
 import 'package:delve/enums.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class Ability {
   final String name;

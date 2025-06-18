@@ -78,17 +78,18 @@ class DungeonService {
 
       enemies.add(
         Character(
-            name: '${template.name} ${i + 1}',
-            maxHealth: maxHealth,
-            currentHealth: maxHealth,
-            speed: speed,
-            abilities: List.from(template.abilities),
-            currentlyDelving: true,
-            // Add these fields to your Character class if not present:
-            // int level, int expValue
-          )
-          ..level = level
-          ..expValue = expValue,
+          name: '${template.name} ${i + 1}',
+          maxHealth: maxHealth,
+          currentHealth: maxHealth,
+          speed: speed,
+          abilities: List.from(template.abilities),
+          currentlyDelving: true,
+          level: level,
+          currentXP: 0,
+          totalKills: 0,
+          // Add these fields to your Character class if not present:
+          // int level, int expValue
+        )..expValue = expValue,
       );
     }
     return enemies;

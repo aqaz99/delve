@@ -7,7 +7,6 @@ import 'package:delve/Ability/ability_list.dart';
 import 'package:delve/Character/character.dart';
 import 'package:delve/enums.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class BattleService {
   final BattleContext _context;

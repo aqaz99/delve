@@ -48,8 +48,6 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
     if (!_game.gameStarted) _game.generateEncounter(ref);
     if (!_game.enemies.any((c) => c.isAlive)) _game.goDeeper(ref);
 
-    print(_game.showEvent);
-
     await _game.progressRound(ref);
     _scrollToBottom(Duration.zero);
   }

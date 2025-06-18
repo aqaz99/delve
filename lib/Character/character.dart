@@ -43,7 +43,9 @@ class Character {
       speed = other.speed,
       currentlyDelving = other.currentlyDelving,
       abilities = List.from(other.abilities),
-      level = other.level;
+      level = other.level,
+      currentXP = other.currentXP,
+      totalKills = other.totalKills;
 
   Character copyWith({
     String? name,
@@ -95,12 +97,13 @@ class Character {
               .toList(),
       currentlyDelving: json['currentlyDelving'],
       level: json['level'],
-      currentXP: json['level'],
+      currentXP: json['currentXP'],
       totalKills: json['totalKills'],
     );
   }
 
   void gainXP(int xpEarned) {
+    print("$name gains $xpEarned xp");
     currentXP += xpEarned;
 
     while (currentXP >= nextLevelXP) {

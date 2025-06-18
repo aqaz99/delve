@@ -74,7 +74,7 @@ class DungeonService {
       // Scale stats and exp
       final int maxHealth = (template.baseHealth * pow(1.2, level - 1)).round();
       final int speed = (template.baseSpeed * pow(1.1, level - 1)).round();
-      final int expValue = (template.baseExp * pow(1.3, level - 1)).round();
+      final int expValue = (template.baseExp * pow(1.15, level - 1)).round();
 
       enemies.add(
         Character(

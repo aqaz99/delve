@@ -20,6 +20,7 @@ class Character {
   int currentXP = 0;
   int totalKills = 0;
   int expValue = 0;
+  int abilityPoints = 0; // New property to track ability points
 
   int get nextLevelXP => (_baseXP * pow(level, _xpExponent)).round();
   bool get isAlive => currentHealth > 0;
@@ -33,6 +34,7 @@ class Character {
     required this.level,
     required this.currentXP,
     required this.totalKills,
+    required this.abilityPoints,
     int? currentHealth,
   }) : currentHealth = currentHealth ?? maxHealth;
 
@@ -45,7 +47,8 @@ class Character {
       abilities = List.from(other.abilities),
       level = other.level,
       currentXP = other.currentXP,
-      totalKills = other.totalKills;
+      totalKills = other.totalKills,
+      abilityPoints = other.abilityPoints;
 
   Character copyWith({
     String? name,
@@ -57,6 +60,7 @@ class Character {
     int? level,
     int? currentXP,
     int? totalKills,
+    int? abilityPoints,
   }) {
     return Character(
       name: name ?? this.name,
@@ -68,6 +72,7 @@ class Character {
       level: level ?? this.level,
       currentXP: currentXP ?? this.currentXP,
       totalKills: totalKills ?? this.totalKills,
+      abilityPoints: abilityPoints ?? this.abilityPoints,
     );
   }
 
@@ -82,6 +87,7 @@ class Character {
       'level': level,
       'currentXP': currentXP,
       'totalKills': totalKills,
+      'abilityPoints': abilityPoints, // Include ability points in JSON
     };
   }
 
@@ -99,6 +105,7 @@ class Character {
       level: json['level'],
       currentXP: json['currentXP'],
       totalKills: json['totalKills'],
+      abilityPoints: json['abilityPoints'],
     );
   }
 
@@ -113,12 +120,30 @@ class Character {
     }
   }
 
+  void spendAbilityPoint({
+    bool increaseHealth = false,
+    bool increaseSpeed = false,
+  }) {
+    if (abilityPoints <= 0) return;
+
+    if (increaseHealth) {
+      maxHealth += 5; // Increase max health by 5
+      currentHealth = maxHealth; // Fully heal when health increases
+    } else if (increaseSpeed) {
+      speed += 1; // Increase speed by 1
+    }
+
+    abilityPoints -= 1; // Deduct one ability point
+  }
+
   void _levelUp() {
     level++;
 
-    // stat increases
+    // Stat increases
     maxHealth = (maxHealth * _healthMultiplier).ceil();
     currentHealth = maxHealth;
+
+    abilityPoints += 1; // Gain one ability point on level up
   }
 }
 

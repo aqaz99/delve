@@ -87,6 +87,7 @@ class DungeonService {
           level: level,
           currentXP: 0,
           totalKills: 0,
+          abilityPoints: 0,
           // Add these fields to your Character class if not present:
           // int level, int expValue
         )..expValue = expValue,

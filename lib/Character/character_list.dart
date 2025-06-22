@@ -11,6 +11,7 @@ final characterWarrior = Character(
   level: 1,
   currentXP: 0,
   totalKills: 0,
+  abilityPoints: 0,
 );
 final characterMage = Character(
   name: 'Mage',
@@ -21,6 +22,7 @@ final characterMage = Character(
   level: 1,
   currentXP: 0,
   totalKills: 0,
+  abilityPoints: 0,
 );
 
 final characterCleric = Character(
@@ -32,6 +34,7 @@ final characterCleric = Character(
   level: 1,
   currentXP: 0,
   totalKills: 0,
+  abilityPoints: 0,
 );
 
 final characterRogue = Character(
@@ -43,6 +46,7 @@ final characterRogue = Character(
   level: 1,
   currentXP: 0,
   totalKills: 0,
+  abilityPoints: 0,
 );
 
 final characterWarlock = Character(
@@ -54,6 +58,7 @@ final characterWarlock = Character(
   level: 1,
   currentXP: 0,
   totalKills: 0,
+  abilityPoints: 0,
 );
 
 final List<Character> allCharacters = [

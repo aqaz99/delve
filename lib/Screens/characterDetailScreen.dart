@@ -1,5 +1,6 @@
 // character_detail_screen.dart
 import 'package:delve/Character/character.dart';
+import 'package:delve/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,6 +38,10 @@ class CharacterDetailScreen extends ConsumerWidget {
                   _buildStatRow('Speed', character.speed.toString()),
                   _buildStatRow('Total Kills', character.totalKills.toString()),
                   _buildXPRow(),
+                  const SizedBox(height: 20),
+                  _buildAbilityPointsSection(
+                    ref,
+                  ), // New section for ability points
                   const SizedBox(height: 20),
                   const Text('Equipment Slots', style: TextStyle(fontSize: 18)),
                   const SizedBox(height: 10),
@@ -161,6 +166,57 @@ class CharacterDetailScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAbilityPointsSection(WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Ability Points: ${character.abilityPoints}',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(
+              onPressed:
+                  character.abilityPoints > 0
+                      ? () {
+                        ref
+                            .read(partyProvider.notifier)
+                            .updateCharacter(
+                              character.copyWith(
+                                maxHealth: character.maxHealth + 5,
+                                currentHealth: character.maxHealth + 5,
+                                abilityPoints: character.abilityPoints - 1,
+                              ),
+                            );
+                      }
+                      : null,
+              child: const Text('+ Health'),
+            ),
+            ElevatedButton(
+              onPressed:
+                  character.abilityPoints > 0
+                      ? () {
+                        ref
+                            .read(partyProvider.notifier)
+                            .updateCharacter(
+                              character.copyWith(
+                                speed: character.speed + 1,
+                                abilityPoints: character.abilityPoints - 1,
+                              ),
+                            );
+                      }
+                      : null,
+              child: const Text('+ Speed'),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

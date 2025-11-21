@@ -118,6 +118,7 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
             _resetDelveState(resetHealth: true);
             _game.gameStarted = false;
             _game.saveProgress(ref);
+            Navigator.of(context).pop();
             setState(() {});
           },
           child: const Text('Escape with what you have'),

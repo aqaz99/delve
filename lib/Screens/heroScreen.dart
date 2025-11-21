@@ -15,7 +15,7 @@ class HeroScreen extends ConsumerWidget {
     List<Character> _generateNewParty() {
       final random = Random();
       final shuffled = List<Character>.from(allCharacters)..shuffle(random);
-      return shuffled.take(4).toList();
+      return shuffled.take(3).toList();
     }
 
     return Scaffold(

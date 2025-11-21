@@ -117,6 +117,7 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
           onPressed: () {
             _game.handleEventChoice(ref, 'escape');
             _resetDelveState(resetHealth: true);
+            _game.gameStarted = false;
             _game.saveProgress(ref);
             setState(() {});
           },

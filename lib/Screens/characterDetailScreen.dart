@@ -35,36 +35,56 @@ class CharacterDetailScreen extends ConsumerWidget {
           // Character Stats and Equipment Slots
           Expanded(
             flex: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildStatRow(
-                    'Health',
-                    '${currentCharacter.currentHealth}/${currentCharacter.maxHealth}',
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Constrain the scrollable area to the available height so
+                // children that want to expand will not cause overflow.
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildStatRow(
+                            'Health',
+                            '${currentCharacter.currentHealth}/${currentCharacter.maxHealth}',
+                          ),
+                          _buildStatRow(
+                            'Speed',
+                            currentCharacter.speed.toString(),
+                          ),
+                          _buildStatRow(
+                            'Total Kills',
+                            currentCharacter.totalKills.toString(),
+                          ),
+                          _buildXPRow(currentCharacter),
+                          const SizedBox(height: 10),
+                          _buildAbilityPointsSection(
+                            ref,
+                            currentCharacter,
+                          ), // New section for ability points
+                          const SizedBox(height: 20),
+                          const Text(
+                            'Equipment Slots',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.22,
+                            child: _buildEquipmentSlots(),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  _buildStatRow('Speed', currentCharacter.speed.toString()),
-                  _buildStatRow(
-                    'Total Kills',
-                    currentCharacter.totalKills.toString(),
-                  ),
-                  _buildXPRow(currentCharacter),
-                  const SizedBox(height: 20),
-                  _buildAbilityPointsSection(
-                    ref,
-                    currentCharacter,
-                  ), // New section for ability points
-                  const SizedBox(height: 20),
-                  const Text('Equipment Slots', style: TextStyle(fontSize: 18)),
-                  const SizedBox(height: 10),
-                  _buildEquipmentSlots(),
-                ],
-              ),
+                );
+              },
             ),
           ),
-
-          // Inventory Items List
           Expanded(
             flex: 4,
             child: Container(
@@ -100,9 +120,11 @@ class CharacterDetailScreen extends ConsumerWidget {
   Widget _buildEquipmentSlots() {
     const slotTypes = ['Head', 'Chest', 'Hands', 'Legs', 'Feet', 'Main Hand'];
 
+    // Make this GridView scrollable and allow it to expand into available
+    // vertical space (caller should place it into an Expanded). Removing
+    // shrinkWrap and the NeverScrollableScrollPhysics lets the grid scroll
+    // independently when it needs more room.
     return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
         childAspectRatio: 2,
@@ -180,16 +202,17 @@ class CharacterDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildAbilityPointsSection(WidgetRef ref, Character c) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Ability Points: ${c.abilityPoints}',
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        c.abilityPoints > 0
-            ? Row(
+    return c.abilityPoints > 0
+        ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Ability Points: ${c.abilityPoints}',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
@@ -226,9 +249,9 @@ class CharacterDetailScreen extends ConsumerWidget {
                   child: const Text('+ Speed'),
                 ),
               ],
-            )
-            : Container(),
-      ],
-    );
+            ),
+          ],
+        )
+        : Container();
   }
 }

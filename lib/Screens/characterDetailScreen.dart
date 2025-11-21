@@ -11,6 +11,15 @@ class CharacterDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Always pull the latest character state from the party provider so
+    // UI reflects changes (like spending ability points) made via the
+    // PartyNotifier. We match by name; if not found fall back to the
+    // original passed-in character.
+    final party = ref.watch(partyProvider);
+    final currentCharacter = party.firstWhere(
+      (c) => c.name == character.name,
+      orElse: () => character,
+    );
     final mockItems = [
       'Iron Sword',
       'Leather Armor',
@@ -33,14 +42,18 @@ class CharacterDetailScreen extends ConsumerWidget {
                 children: [
                   _buildStatRow(
                     'Health',
-                    '${character.currentHealth}/${character.maxHealth}',
+                    '${currentCharacter.currentHealth}/${currentCharacter.maxHealth}',
                   ),
-                  _buildStatRow('Speed', character.speed.toString()),
-                  _buildStatRow('Total Kills', character.totalKills.toString()),
-                  _buildXPRow(),
+                  _buildStatRow('Speed', currentCharacter.speed.toString()),
+                  _buildStatRow(
+                    'Total Kills',
+                    currentCharacter.totalKills.toString(),
+                  ),
+                  _buildXPRow(currentCharacter),
                   const SizedBox(height: 20),
                   _buildAbilityPointsSection(
                     ref,
+                    currentCharacter,
                   ), // New section for ability points
                   const SizedBox(height: 20),
                   const Text('Equipment Slots', style: TextStyle(fontSize: 18)),
@@ -122,11 +135,8 @@ class CharacterDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildXPRow() {
-    final progress =
-        character.nextLevelXP > 0
-            ? character.currentXP / character.nextLevelXP
-            : 0.0;
+  Widget _buildXPRow(Character c) {
+    final progress = c.nextLevelXP > 0 ? c.currentXP / c.nextLevelXP : 0.0;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0),
@@ -134,7 +144,7 @@ class CharacterDetailScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            'Level ${character.level}',
+            'Level ${c.level}',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(width: 14),
@@ -158,7 +168,7 @@ class CharacterDetailScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  '${character.currentXP}/${character.nextLevelXP} XP',
+                  '${c.currentXP}/${c.nextLevelXP} XP',
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
@@ -169,53 +179,55 @@ class CharacterDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAbilityPointsSection(WidgetRef ref) {
+  Widget _buildAbilityPointsSection(WidgetRef ref, Character c) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ability Points: ${character.abilityPoints}',
+          'Ability Points: ${c.abilityPoints}',
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
-              onPressed:
-                  character.abilityPoints > 0
-                      ? () {
-                        ref
-                            .read(partyProvider.notifier)
-                            .updateCharacter(
-                              character.copyWith(
-                                maxHealth: character.maxHealth + 5,
-                                currentHealth: character.maxHealth + 5,
-                                abilityPoints: character.abilityPoints - 1,
-                              ),
-                            );
-                      }
-                      : null,
-              child: const Text('+ Health'),
-            ),
-            ElevatedButton(
-              onPressed:
-                  character.abilityPoints > 0
-                      ? () {
-                        ref
-                            .read(partyProvider.notifier)
-                            .updateCharacter(
-                              character.copyWith(
-                                speed: character.speed + 1,
-                                abilityPoints: character.abilityPoints - 1,
-                              ),
-                            );
-                      }
-                      : null,
-              child: const Text('+ Speed'),
-            ),
-          ],
-        ),
+        c.abilityPoints > 0
+            ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed:
+                      c.abilityPoints > 0
+                          ? () {
+                            ref
+                                .read(partyProvider.notifier)
+                                .updateCharacter(
+                                  c.copyWith(
+                                    maxHealth: c.maxHealth + 5,
+                                    currentHealth: c.maxHealth + 5,
+                                    abilityPoints: c.abilityPoints - 1,
+                                  ),
+                                );
+                          }
+                          : null,
+                  child: const Text('+ Health'),
+                ),
+                ElevatedButton(
+                  onPressed:
+                      c.abilityPoints > 0
+                          ? () {
+                            ref
+                                .read(partyProvider.notifier)
+                                .updateCharacter(
+                                  c.copyWith(
+                                    speed: c.speed + 1,
+                                    abilityPoints: c.abilityPoints - 1,
+                                  ),
+                                );
+                          }
+                          : null,
+                  child: const Text('+ Speed'),
+                ),
+              ],
+            )
+            : Container(),
       ],
     );
   }

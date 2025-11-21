@@ -87,7 +87,7 @@ class Character {
       'level': level,
       'currentXP': currentXP,
       'totalKills': totalKills,
-      'abilityPoints': abilityPoints, // Include ability points in JSON
+      'abilityPoints': abilityPoints,
     };
   }
 

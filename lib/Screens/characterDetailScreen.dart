@@ -202,12 +202,12 @@ class CharacterDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildAbilityPointsSection(WidgetRef ref, Character c) {
-    return c.abilityPoints > 0
+    return c.abilityPoints > 0 && !c.currentlyDelving
         ? Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Ability Points: ${c.abilityPoints}',
+              'Ability Points: ${c.abilityPoints} ${c.currentlyDelving}',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),

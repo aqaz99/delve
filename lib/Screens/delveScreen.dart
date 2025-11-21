@@ -59,7 +59,6 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
     if (resetHealth) {
       ref.read(partyProvider.notifier).healParty(100);
     }
-    ;
     _scrollToBottom(Duration.zero);
     _isProcessing = false;
   }

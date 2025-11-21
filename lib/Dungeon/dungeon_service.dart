@@ -125,6 +125,17 @@ class DungeonService {
   }
 
   Future<void> clearDungeonRun(WidgetRef ref) async {
+    // For any characters that were delving, mark them as no longer delving
+    final party = ref.read(partyProvider);
+    final updatedParty =
+        party
+            .map(
+              (c) =>
+                  c.currentlyDelving ? c.copyWith(currentlyDelving: false) : c,
+            )
+            .toList();
+    ref.read(partyProvider.notifier).setParty(updatedParty);
+
     depth = 1;
     currentRound = 0;
     enemies = generateEnemies(depth);

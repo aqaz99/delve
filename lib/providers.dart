@@ -19,3 +19,5 @@ final dungeonServiceProvider = Provider<DungeonService>((ref) {
 });
 
 final enemyProvider = StateProvider<List<Character>>((ref) => []);
+// App-wide current page index for the bottom navigation (0=Heroes,1=Home/Delve,2=Tavern,3=Items)
+final currentPageProvider = StateProvider<int>((ref) => 1);

@@ -52,11 +52,14 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
     _scrollToBottom(Duration.zero);
   }
 
-  void _resetDelveState() async {
+  void _resetDelveState({bool resetHealth = true}) async {
     await _game.clearDungeonRun(ref);
     _visibleStates.clear();
     _stateBuffer.clear();
-    ref.read(partyProvider.notifier).healParty(100);
+    if (resetHealth) {
+      ref.read(partyProvider.notifier).healParty(100);
+    }
+    ;
     _scrollToBottom(Duration.zero);
     _isProcessing = false;
   }
@@ -98,6 +101,7 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
           onPressed: () {
             _game.handleEventChoice(ref, 'rest');
             _game.saveProgress(ref);
+            setState(() {});
           },
           child: const Text('Rest (+10 HP to All)'),
         ),
@@ -105,15 +109,18 @@ class _DelveScreenState extends ConsumerState<DelveScreen> {
           onPressed: () {
             _game.handleEventChoice(ref, 'loot');
             _game.saveProgress(ref);
+            setState(() {});
           },
-          child: const Text('Search for Loot'),
+          child: const Text('Search for loot'),
         ),
         ElevatedButton(
           onPressed: () {
-            _game.handleEventChoice(ref, 'continue');
+            _game.handleEventChoice(ref, 'escape');
+            _resetDelveState(resetHealth: true);
             _game.saveProgress(ref);
+            setState(() {});
           },
-          child: const Text('Continue Immediately'),
+          child: const Text('Escape with what you have'),
         ),
       ],
     );

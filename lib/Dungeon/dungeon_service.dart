@@ -119,7 +119,8 @@ class DungeonService {
         break;
       case 'loot':
         break;
-      case 'continue':
+      case 'escape':
+        clearDungeonRun(ref);
         break;
     }
     showEvent = false;

@@ -3,6 +3,8 @@ import 'package:delve/Ability/ability_list.dart';
 import 'dart:math';
 
 import 'package:delve/Character/character_list.dart';
+import 'package:delve/Item/item.dart';
+import 'package:delve/Item/item_list.dart';
 
 class Character {
   final String name;
@@ -11,6 +13,7 @@ class Character {
   int speed;
   List<Ability> abilities;
   bool currentlyDelving;
+  List<Item> equippedItems;
 
   // Leveling and EXP
   static const double _xpExponent = 1.5;
@@ -31,12 +34,14 @@ class Character {
     required this.speed,
     required this.abilities,
     required this.currentlyDelving,
+    List<Item>? equippedItems,
     required this.level,
     required this.currentXP,
     required this.totalKills,
     required this.abilityPoints,
     int? currentHealth,
-  }) : currentHealth = currentHealth ?? maxHealth;
+  }) : equippedItems = equippedItems ?? [],
+       currentHealth = currentHealth ?? maxHealth;
 
   Character.copy(Character other)
     : name = other.name,
@@ -45,6 +50,7 @@ class Character {
       speed = other.speed,
       currentlyDelving = other.currentlyDelving,
       abilities = List.from(other.abilities),
+      equippedItems = List.from(other.equippedItems),
       level = other.level,
       currentXP = other.currentXP,
       totalKills = other.totalKills,
@@ -57,6 +63,7 @@ class Character {
     int? speed,
     List<Ability>? abilities,
     bool? currentlyDelving,
+    List<Item>? equippedItems,
     int? level,
     int? currentXP,
     int? totalKills,
@@ -69,6 +76,7 @@ class Character {
       speed: speed ?? this.speed,
       abilities: abilities ?? List.from(this.abilities),
       currentlyDelving: currentlyDelving ?? this.currentlyDelving,
+      equippedItems: equippedItems ?? List.from(this.equippedItems),
       level: level ?? this.level,
       currentXP: currentXP ?? this.currentXP,
       totalKills: totalKills ?? this.totalKills,
@@ -84,6 +92,7 @@ class Character {
       'speed': speed,
       'abilities': abilities.map((a) => a.name).toList(),
       'currentlyDelving': currentlyDelving,
+      'items': equippedItems.map((i) => i.name).toList(),
       'level': level,
       'currentXP': currentXP,
       'totalKills': totalKills,
@@ -102,12 +111,25 @@ class Character {
               .map((name) => getAbilityByName(name))
               .toList(),
       currentlyDelving: json['currentlyDelving'],
+      equippedItems:
+          (json['items'] as List?)
+              ?.map((name) => getItemByName(name))
+              .toList() ??
+          [],
       level: json['level'],
       currentXP: json['currentXP'],
       totalKills: json['totalKills'],
       abilityPoints: json['abilityPoints'],
     );
   }
+
+  // Effective stats applying item bonuses. The base stats (maxHealth, speed)
+  // remain stored as-is; use these getters to get the current effective values.
+  int get effectiveMaxHealth =>
+      maxHealth + equippedItems.fold(0, (s, i) => s + i.maxHealthBonus);
+
+  int get effectiveSpeed =>
+      speed + equippedItems.fold(0, (s, i) => s + i.speedBonus);
 
   void gainXP(int xpEarned) {
     print("$name gains $xpEarned xp");

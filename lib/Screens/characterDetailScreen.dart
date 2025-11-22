@@ -1,6 +1,9 @@
 // character_detail_screen.dart
 import 'package:delve/Character/character.dart';
 import 'package:delve/providers.dart';
+import 'package:delve/Item/item.dart';
+import 'package:delve/Item/item_list.dart';
+import 'package:delve/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -75,7 +78,11 @@ class CharacterDetailScreen extends ConsumerWidget {
                           const SizedBox(height: 10),
                           SizedBox(
                             height: MediaQuery.of(context).size.height * 0.22,
-                            child: _buildEquipmentSlots(),
+                            child: _buildEquipmentSlots(
+                              context,
+                              ref,
+                              currentCharacter,
+                            ),
                           ),
                         ],
                       ),
@@ -117,13 +124,13 @@ class CharacterDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEquipmentSlots() {
-    const slotTypes = ['Head', 'Chest', 'Hands', 'Legs', 'Feet', 'Main Hand'];
+  Widget _buildEquipmentSlots(
+    BuildContext context,
+    WidgetRef ref,
+    Character currentCharacter,
+  ) {
+    final slots = ItemSlot.values;
 
-    // Make this GridView scrollable and allow it to expand into available
-    // vertical space (caller should place it into an Expanded). Removing
-    // shrinkWrap and the NeverScrollableScrollPhysics lets the grid scroll
-    // independently when it needs more room.
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
@@ -131,18 +138,110 @@ class CharacterDetailScreen extends ConsumerWidget {
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
       ),
-      itemCount: slotTypes.length,
+      itemCount: slots.length,
       itemBuilder: (context, index) {
-        return Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Center(
-            child: Text(
-              slotTypes[index],
-              style: const TextStyle(color: Colors.grey),
+        final slot = slots[index];
+        final equipped = currentCharacter.equippedItems[slot];
+        return InkWell(
+          onTap: () => _showEquipSheet(context, ref, currentCharacter, slot),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
             ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _prettySlotName(slot),
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    equipped?.name ?? 'Empty',
+                    style: const TextStyle(fontSize: 12),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _prettySlotName(ItemSlot slot) {
+    final raw = slot.name; // e.g. 'mainHand'
+    if (raw == 'mainHand') return 'Main Hand';
+    return raw[0].toUpperCase() + raw.substring(1);
+  }
+
+  void _showEquipSheet(
+    BuildContext context,
+    WidgetRef ref,
+    Character character,
+    ItemSlot slot,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) {
+        final candidates = allItems.where((i) => i.slot == slot).toList();
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text('Unequip'),
+                onTap: () {
+                  final updatedMap = Map<ItemSlot, Item?>.from(
+                    character.equippedItems,
+                  );
+                  updatedMap[slot] = null;
+                  final updated = character.copyWith(equippedItems: updatedMap);
+                  ref.read(partyProvider.notifier).updateCharacter(updated);
+                  Navigator.of(ctx).pop();
+                },
+              ),
+              const Divider(),
+              if (candidates.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text('No items available for this slot.'),
+                )
+              else
+                ...candidates.map(
+                  (item) => ListTile(
+                    title: Text(item.name),
+                    subtitle:
+                        item.description.isNotEmpty
+                            ? Text(item.description)
+                            : null,
+                    onTap: () {
+                      final updatedMap = Map<ItemSlot, Item?>.from(
+                        character.equippedItems,
+                      );
+                      updatedMap[slot] = item;
+                      // Keep currentHealth within new effective max
+                      final updated = character.copyWith(
+                        equippedItems: updatedMap,
+                      );
+                      final cappedHealth = updated.currentHealth.clamp(
+                        0,
+                        updated.effectiveMaxHealth,
+                      );
+                      final finalUpdated = updated.copyWith(
+                        currentHealth: cappedHealth,
+                      );
+                      ref
+                          .read(partyProvider.notifier)
+                          .updateCharacter(finalUpdated);
+                      Navigator.of(ctx).pop();
+                    },
+                  ),
+                ),
+            ],
           ),
         );
       },

@@ -1,14 +1,18 @@
+import 'package:delve/enums.dart';
+
 class Item {
   final String name;
   final String description;
   final int speedBonus;
   final int maxHealthBonus;
+  final ItemSlot slot;
 
   Item({
     required this.name,
     this.description = '',
     this.speedBonus = 0,
     this.maxHealthBonus = 0,
+    required this.slot,
   });
 
   Item copyWith({
@@ -16,12 +20,14 @@ class Item {
     String? description,
     int? speedBonus,
     int? maxHealthBonus,
+    ItemSlot? slot,
   }) {
     return Item(
       name: name ?? this.name,
       description: description ?? this.description,
       speedBonus: speedBonus ?? this.speedBonus,
       maxHealthBonus: maxHealthBonus ?? this.maxHealthBonus,
+      slot: slot ?? this.slot,
     );
   }
 
@@ -31,6 +37,7 @@ class Item {
       'description': description,
       'speedBonus': speedBonus,
       'maxHealthBonus': maxHealthBonus,
+      'slot': slot.name,
     };
   }
 
@@ -40,6 +47,9 @@ class Item {
       description: json['description'] ?? '',
       speedBonus: json['speedBonus'] ?? 0,
       maxHealthBonus: json['maxHealthBonus'] ?? 0,
+      slot: ItemSlot.values.firstWhere(
+        (s) => s.name == (json['slot'] ?? 'mainHand'),
+      ),
     );
   }
 }

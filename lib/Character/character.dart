@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:delve/Character/character_list.dart';
 import 'package:delve/Item/item.dart';
 import 'package:delve/Item/item_list.dart';
+import 'package:delve/enums.dart';
 
 class Character {
   final String name;
@@ -13,7 +14,7 @@ class Character {
   int speed;
   List<Ability> abilities;
   bool currentlyDelving;
-  List<Item> equippedItems;
+  Map<ItemSlot, Item?> equippedItems;
 
   // Leveling and EXP
   static const double _xpExponent = 1.5;
@@ -34,13 +35,13 @@ class Character {
     required this.speed,
     required this.abilities,
     required this.currentlyDelving,
-    List<Item>? equippedItems,
+    Map<ItemSlot, Item?>? equippedItems,
     required this.level,
     required this.currentXP,
     required this.totalKills,
     required this.abilityPoints,
     int? currentHealth,
-  }) : equippedItems = equippedItems ?? [],
+  }) : equippedItems = equippedItems ?? {},
        currentHealth = currentHealth ?? maxHealth;
 
   Character.copy(Character other)
@@ -50,7 +51,7 @@ class Character {
       speed = other.speed,
       currentlyDelving = other.currentlyDelving,
       abilities = List.from(other.abilities),
-      equippedItems = List.from(other.equippedItems),
+      equippedItems = Map.from(other.equippedItems),
       level = other.level,
       currentXP = other.currentXP,
       totalKills = other.totalKills,
@@ -63,7 +64,7 @@ class Character {
     int? speed,
     List<Ability>? abilities,
     bool? currentlyDelving,
-    List<Item>? equippedItems,
+    Map<ItemSlot, Item?>? equippedItems,
     int? level,
     int? currentXP,
     int? totalKills,
@@ -76,7 +77,7 @@ class Character {
       speed: speed ?? this.speed,
       abilities: abilities ?? List.from(this.abilities),
       currentlyDelving: currentlyDelving ?? this.currentlyDelving,
-      equippedItems: equippedItems ?? List.from(this.equippedItems),
+      equippedItems: equippedItems ?? Map.from(this.equippedItems),
       level: level ?? this.level,
       currentXP: currentXP ?? this.currentXP,
       totalKills: totalKills ?? this.totalKills,
@@ -92,7 +93,9 @@ class Character {
       'speed': speed,
       'abilities': abilities.map((a) => a.name).toList(),
       'currentlyDelving': currentlyDelving,
-      'items': equippedItems.map((i) => i.name).toList(),
+      'items': Map.fromEntries(
+        equippedItems.entries.map((e) => MapEntry(e.key.name, e.value?.name)),
+      ),
       'level': level,
       'currentXP': currentXP,
       'totalKills': totalKills,
@@ -112,10 +115,27 @@ class Character {
               .toList(),
       currentlyDelving: json['currentlyDelving'],
       equippedItems:
-          (json['items'] as List?)
-              ?.map((name) => getItemByName(name))
-              .toList() ??
-          [],
+          (() {
+            final map = <ItemSlot, Item?>{};
+            final raw = json['items'] as Map<String, dynamic>?;
+            if (raw != null) {
+              raw.forEach((slotName, itemName) {
+                try {
+                  final slot = ItemSlot.values.firstWhere(
+                    (s) => s.name == slotName,
+                  );
+                  if (itemName != null) {
+                    map[slot] = getItemByName(itemName as String);
+                  } else {
+                    map[slot] = null;
+                  }
+                } catch (_) {
+                  // ignore unknown slots
+                }
+              });
+            }
+            return map;
+          })(),
       level: json['level'],
       currentXP: json['currentXP'],
       totalKills: json['totalKills'],
@@ -126,10 +146,18 @@ class Character {
   // Effective stats applying item bonuses. The base stats (maxHealth, speed)
   // remain stored as-is; use these getters to get the current effective values.
   int get effectiveMaxHealth =>
-      maxHealth + equippedItems.fold(0, (s, i) => s + i.maxHealthBonus);
+      maxHealth +
+      equippedItems.values.whereType<Item>().fold(
+        0,
+        (s, i) => s + i.maxHealthBonus,
+      );
 
   int get effectiveSpeed =>
-      speed + equippedItems.fold(0, (s, i) => s + i.speedBonus);
+      speed +
+      equippedItems.values.whereType<Item>().fold(
+        0,
+        (s, i) => s + i.speedBonus,
+      );
 
   void gainXP(int xpEarned) {
     print("$name gains $xpEarned xp");
